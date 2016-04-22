@@ -43,6 +43,7 @@ create_tables() ->
 		[maybe_create_table(ets:info(Name), Name, Opts) || {Name, Opts} <- Tables],
     prometheus_vm:register(default),
     prometheus_rabbitmq_overview:register(default),
+    prometheus_rabbitmq_queues:register(default),
 		ok.
 
 maybe_create_table(undefined, Name, Opts) ->
