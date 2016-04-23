@@ -15,4 +15,4 @@ collect_metrics(erlang_vm_ets_tables, Callback, _MFData) ->
   Callback([], length(ets:all())).
 
 register(Registry) ->
-  ets:insert_new(?PROMETHEUS_TABLE, {{Registry, collector, prometheus_vm, 0}, [], ""}).
+  prometheus_registry:register_collector(Registry,  ?MODULE).
