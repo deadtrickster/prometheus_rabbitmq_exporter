@@ -28,7 +28,7 @@
                          {"disk_writes", "Total number of times messages have been written to disk by this queue since it started."},
                          {"messages_published_total", "Count of messages published."},
                          {"messages_confirmed_total", "Count of messages confirmed."},
-                         {"messages_redelivered_total", "Count of subset of messages in deliver_get which had the redelivered flag set."}]).
+                         {"messages_redelivered_total", "Count of subset of messages in rabbitmq_queue_messages_delivered_total which had the redelivered flag set."}]).
 
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
