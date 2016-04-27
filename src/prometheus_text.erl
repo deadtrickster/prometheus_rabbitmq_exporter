@@ -14,6 +14,7 @@ format(Registry) ->
   prometheus_registry:collect(Registry, fun (Type, Name, Labels, Help) ->
                                             registry_collect_callback(Fd, Type, Name, Labels, Help)
                                         end),
+  file:write(Fd, io_lib:format("\n", [])),
   {ok, Size} = ram_file:get_size(Fd),
   {ok, Str} = file:pread(Fd, 0, Size),
   ok = file:close(Fd),
@@ -56,9 +57,16 @@ labels_string(Labels, LabelValues) ->
                                        io_lib:format("~s=\"~s\"", [Label, escape_label_value(Value1)])
                                    end,
                                    LabelsPList),
-                         ", ") ++ "}"
+                         ",") ++ "}"
   end.
 
+
+collector_metrics_callback(Fd, Name, Labels, LabelValues, '') ->
+  LString = labels_string(Labels, LabelValues),
+  file:write(Fd, io_lib:format("~s" ++ LString ++ " NaN\n", [Name]));
+collector_metrics_callback(Fd, Name, Labels, LabelValues, undefined) ->
+  LString = labels_string(Labels, LabelValues),
+  file:write(Fd, io_lib:format("~s" ++ LString ++ " NaN\n", [Name]));
 collector_metrics_callback(Fd, Name, Labels, LabelValues, Value) ->
   LString = labels_string(Labels, LabelValues),
   file:write(Fd, io_lib:format("~s" ++ LString ++ " ~p\n", [Name, Value])).
