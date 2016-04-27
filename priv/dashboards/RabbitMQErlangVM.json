@@ -150,7 +150,7 @@
             "show": true,
             "total": false,
             "values": false,
-            "alignAsTable": true
+            "alignAsTable": false
           },
           "lines": true,
           "linewidth": 2,
@@ -165,17 +165,26 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "rabbitmq_queue_messages_published_total",
+              "expr": "irate(rabbitmq_queue_messages_published_total[5m])",
               "intervalFactor": 2,
-              "legendFormat": "Queue \"qwe\"",
+              "legendFormat": "Queue \"qwe\" published",
               "metric": "rabbitmq_queue_messages_ram",
               "refId": "A",
               "step": 2
+            },
+            {
+              "refId": "B",
+              "expr": "sum(irate(rabbitmq_queue_messages_delivered_total[5m]))",
+              "intervalFactor": 2,
+              "metric": "rabbitmq_queue_messages_delivered_total",
+              "step": 2,
+              "legendFormat": "Queue \"qwe\" delivered",
+              "hide": false
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Published Messages",
+          "title": "Messages",
           "tooltip": {
             "shared": true,
             "value_type": "cumulative"
@@ -189,7 +198,9 @@
           ],
           "leftYAxisLabel": "Messages",
           "rightYAxisLabel": "",
-          "links": []
+          "links": [],
+          "transparent": false,
+          "height": ""
         }
       ],
       "title": "New row"
@@ -477,6 +488,6 @@
   },
   "refresh": "5s",
   "schemaVersion": 8,
-  "version": 7,
+  "version": 8,
   "links": []
 }
