@@ -1,4 +1,4 @@
--module(prometheus_vm).
+-module(prometheus_vm_memory).
 -export([collect_mf/1,
          collect_metrics/3,
          register/1]).
@@ -11,7 +11,8 @@ collect_mf(Callback) ->
   Callback(gauge, erlang_vm_memory_processes_bytes_total, [usage], "The total amount of memory currently allocated for the Erlang processes.", Memory),
   Callback(gauge, erlang_vm_memory_system_bytes_total, [usage], "The total amount of memory currently allocated for the emulator that is not directly related to ay Erlang process. Memory presented as processes is not included in this memory.", Memory),
   Callback(gauge, erlang_vm_memory_atom_bytes_total, [usage], "The total amount of memory currently allocated for atoms. This memory is part of the memory presented as system memory.", Memory),
-  Callback(gauge, erlang_vm_ets_tables, [], "Erlang VM ETS Tables count", []).
+  Callback(gauge, erlang_vm_ets_tables, [], "Erlang VM ETS Tables count", []),
+  Callback(gauge, erlang_vm_dets_tables, [], "Erlang VM DETS Tables count", []).
 
 collect_metrics(erlang_vm_memory_bytes_total, Callback, Memory) ->
   Callback([system], proplists:get_value(system, Memory)),
@@ -30,7 +31,9 @@ collect_metrics(erlang_vm_memory_atom_bytes_total, Callback, Memory) ->
   Callback([used], proplists:get_value(atom_used, Memory)),
   Callback([free], proplists:get_value(atom, Memory) - proplists:get_value(atom_used, Memory));
 collect_metrics(erlang_vm_ets_tables, Callback, _MFData) ->
-  Callback([], length(ets:all())).
+  Callback([], length(ets:all()));
+collect_metrics(erlang_vm_dets_tables, Callback, _MFData) ->
+  Callback([], length(dets:all())).
 
 register(Registry) ->
   prometheus_registry:register_collector(Registry,  ?MODULE).
