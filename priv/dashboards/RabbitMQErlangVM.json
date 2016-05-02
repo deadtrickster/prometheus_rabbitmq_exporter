@@ -46,6 +46,7 @@
           },
           "lines": true,
           "linewidth": 2,
+          "links": [],
           "nullPointMode": "connected",
           "percentage": false,
           "pointradius": 5,
@@ -59,42 +60,42 @@
             {
               "expr": "rabbitmq_connections",
               "intervalFactor": 2,
+              "legendFormat": "Connections",
               "metric": "rabbitmq_connections",
               "refId": "A",
-              "step": 2,
-              "legendFormat": "Connections"
+              "step": 2
             },
             {
               "expr": "rabbitmq_channels",
               "intervalFactor": 2,
+              "legendFormat": "Channels",
               "metric": "rabbitmq_channels",
               "refId": "B",
-              "step": 2,
-              "legendFormat": "Channels"
+              "step": 2
             },
             {
               "expr": "rabbitmq_consumers",
               "intervalFactor": 2,
+              "legendFormat": "Consumers",
               "metric": "rabbitmq_consumers",
               "refId": "C",
-              "step": 2,
-              "legendFormat": "Consumers"
+              "step": 2
             },
             {
               "expr": "rabbitmq_exchanges",
               "intervalFactor": 2,
+              "legendFormat": "Exchanges",
               "metric": "rabbitmq_exchanges",
               "refId": "D",
-              "step": 2,
-              "legendFormat": "Exchanges"
+              "step": 2
             },
             {
               "expr": "rabbitmq_queues",
               "intervalFactor": 2,
+              "legendFormat": "Queues",
               "metric": "rabbitmq_queues",
               "refId": "E",
-              "step": 2,
-              "legendFormat": "Queues"
+              "step": 2
             }
           ],
           "timeFrom": null,
@@ -110,8 +111,7 @@
           "y_formats": [
             "short",
             "short"
-          ],
-          "links": []
+          ]
         }
       ],
       "title": "Row"
@@ -140,25 +140,29 @@
             "threshold2": null,
             "threshold2Color": "rgba(234, 112, 112, 0.22)"
           },
+          "height": "",
           "id": 2,
           "isNew": true,
+          "leftYAxisLabel": "Messages",
           "legend": {
+            "alignAsTable": false,
             "avg": false,
             "current": false,
             "max": false,
             "min": false,
             "show": true,
             "total": false,
-            "values": false,
-            "alignAsTable": false
+            "values": false
           },
           "lines": true,
           "linewidth": 2,
+          "links": [],
           "nullPointMode": "connected",
           "percentage": false,
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
+          "rightYAxisLabel": "",
           "seriesOverrides": [],
           "span": 12,
           "stack": false,
@@ -167,19 +171,19 @@
             {
               "expr": "irate(rabbitmq_queue_messages_published_total[5m])",
               "intervalFactor": 2,
-              "legendFormat": "Queue \"qwe\" published",
+              "legendFormat": "Messages published",
               "metric": "rabbitmq_queue_messages_ram",
               "refId": "A",
               "step": 2
             },
             {
-              "refId": "B",
               "expr": "sum(irate(rabbitmq_queue_messages_delivered_total[5m]))",
+              "hide": false,
               "intervalFactor": 2,
+              "legendFormat": "Messages delivered",
               "metric": "rabbitmq_queue_messages_delivered_total",
-              "step": 2,
-              "legendFormat": "Queue \"qwe\" delivered",
-              "hide": false
+              "refId": "B",
+              "step": 2
             }
           ],
           "timeFrom": null,
@@ -189,18 +193,14 @@
             "shared": true,
             "value_type": "cumulative"
           },
+          "transparent": false,
           "type": "graph",
           "x-axis": true,
           "y-axis": true,
           "y_formats": [
             "none",
             "short"
-          ],
-          "leftYAxisLabel": "Messages",
-          "rightYAxisLabel": "",
-          "links": [],
-          "transparent": false,
-          "height": ""
+          ]
         }
       ],
       "title": "New row"
@@ -254,24 +254,201 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "erlang_vm_memory_bytes_total{kind=\"system\"}",
+              "expr": "erlang_vm_memory_bytes_total{kind=\"processes\"}",
               "intervalFactor": 2,
-              "legendFormat": "System Memory",
-              "metric": "erlang_vm_memory_bytes_total",
-              "refId": "A",
+              "legendFormat": "Processes Memory",
+              "refId": "B",
               "step": 2
             },
             {
-              "refId": "B",
-              "expr": "erlang_vm_memory_bytes_total{kind=\"processes\"}",
+              "expr": "erlang_vm_memory_system_bytes_total{usage=\"atom\"}",
               "intervalFactor": 2,
-              "step": 2,
-              "legendFormat": "Processes Memory"
+              "legendFormat": "Atoms",
+              "refId": "C",
+              "step": 2
+            },
+            {
+              "expr": "erlang_vm_memory_system_bytes_total{usage=\"binary\"}",
+              "intervalFactor": 2,
+              "legendFormat": "Binary",
+              "refId": "D",
+              "step": 2
+            },
+            {
+              "expr": "erlang_vm_memory_system_bytes_total{usage=\"code\"}",
+              "intervalFactor": 2,
+              "legendFormat": "Code",
+              "refId": "E",
+              "step": 2
+            },
+            {
+              "expr": "erlang_vm_memory_system_bytes_total{usage=\"ets\"}",
+              "intervalFactor": 2,
+              "legendFormat": "ETS",
+              "refId": "F",
+              "step": 2
             }
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Erlang VM Total Memory",
+          "title": "Erlang VM Memory",
+          "tooltip": {
+            "shared": true,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "x-axis": true,
+          "y-axis": true,
+          "y_formats": [
+            "bytes",
+            "short"
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "prom",
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {
+            "leftLogBase": 1,
+            "leftMax": null,
+            "leftMin": null,
+            "rightLogBase": 1,
+            "rightMax": null,
+            "rightMin": null,
+            "threshold1": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2": null,
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "id": 7,
+          "isNew": true,
+          "legend": {
+            "alignAsTable": false,
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "rightSide": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 2,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "Words Reclaimed",
+              "yaxis": 2
+            }
+          ],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "irate(erlang_vm_statistics_garbage_collection_number_of_gcs[5m])",
+              "intervalFactor": 2,
+              "legendFormat": "Number of GCs",
+              "metric": "erlang_vm_statistics_garbage_collection_number_of_gcs",
+              "refId": "A",
+              "step": 2
+            },
+            {
+              "expr": "irate(erlang_vm_statistics_garbage_collection_words_reclaimed[5m])",
+              "intervalFactor": 2,
+              "legendFormat": "Words Reclaimed",
+              "metric": "erlang_vm_statistics_garbage_collection_words_reclaimed",
+              "refId": "B",
+              "step": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Erlang VM GC",
+          "tooltip": {
+            "shared": true,
+            "value_type": "cumulative"
+          },
+          "type": "graph",
+          "x-axis": true,
+          "y-axis": true,
+          "y_formats": [
+            "short",
+            "short"
+          ]
+        },
+        {
+          "aliasColors": {},
+          "bars": false,
+          "datasource": "prom",
+          "editable": true,
+          "error": false,
+          "fill": 1,
+          "grid": {
+            "leftLogBase": 1,
+            "leftMax": null,
+            "leftMin": null,
+            "rightLogBase": 1,
+            "rightMax": null,
+            "rightMin": null,
+            "threshold1": null,
+            "threshold1Color": "rgba(216, 200, 27, 0.27)",
+            "threshold2": null,
+            "threshold2Color": "rgba(234, 112, 112, 0.22)"
+          },
+          "id": 6,
+          "isNew": true,
+          "legend": {
+            "avg": false,
+            "current": false,
+            "max": false,
+            "min": false,
+            "show": true,
+            "total": false,
+            "values": false
+          },
+          "lines": true,
+          "linewidth": 2,
+          "links": [],
+          "nullPointMode": "connected",
+          "percentage": false,
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [],
+          "span": 4,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "expr": "irate(erlang_vm_statistics_bytes_output_total[5m])",
+              "intervalFactor": 2,
+              "legendFormat": "Output Bytes",
+              "metric": "erlang_vm_statistics_bytes_output_total",
+              "refId": "A",
+              "step": 2
+            },
+            {
+              "expr": "irate(erlang_vm_statistics_bytes_received_total[5m])",
+              "intervalFactor": 2,
+              "legendFormat": "Received Bytes",
+              "metric": "erlang_vm_statistics_bytes_received_total",
+              "refId": "B",
+              "step": 2
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Erlang VM IO",
           "tooltip": {
             "shared": true,
             "value_type": "cumulative"
@@ -283,171 +460,16 @@
             "bytes",
             "short"
           ]
-        },
-        {
-          "title": "Erlang VM System Memory Breakdown",
-          "error": false,
-          "span": 4,
-          "editable": true,
-          "type": "graph",
-          "isNew": true,
-          "id": 4,
-          "datasource": "prom",
-          "renderer": "flot",
-          "x-axis": true,
-          "y-axis": true,
-          "y_formats": [
-            "bytes",
-            "short"
-          ],
-          "grid": {
-            "leftLogBase": 1,
-            "leftMax": null,
-            "rightMax": null,
-            "leftMin": null,
-            "rightMin": null,
-            "rightLogBase": 1,
-            "threshold1": null,
-            "threshold2": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "lines": true,
-          "fill": 1,
-          "linewidth": 2,
-          "points": false,
-          "pointradius": 5,
-          "bars": false,
-          "stack": true,
-          "percentage": false,
-          "legend": {
-            "show": true,
-            "values": false,
-            "min": false,
-            "max": false,
-            "current": false,
-            "total": false,
-            "avg": false
-          },
-          "nullPointMode": "connected",
-          "steppedLine": false,
-          "tooltip": {
-            "value_type": "cumulative",
-            "shared": true
-          },
-          "timeFrom": null,
-          "timeShift": null,
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "erlang_vm_memory_system_bytes_total{usage=\"atom\"}",
-              "intervalFactor": 2,
-              "metric": "erlang_vm_memory_system_bytes_total",
-              "step": 2,
-              "legendFormat": "Atoms"
-            },
-            {
-              "refId": "B",
-              "expr": "erlang_vm_memory_system_bytes_total{usage=\"binary\"}",
-              "intervalFactor": 2,
-              "step": 2,
-              "legendFormat": "Binaries"
-            },
-            {
-              "refId": "C",
-              "expr": "erlang_vm_memory_system_bytes_total{usage=\"code\"}",
-              "intervalFactor": 2,
-              "step": 2,
-              "legendFormat": "Code"
-            },
-            {
-              "refId": "D",
-              "expr": "erlang_vm_memory_system_bytes_total{usage=\"ets\"}",
-              "intervalFactor": 2,
-              "step": 2,
-              "legendFormat": "ETS"
-            }
-          ],
-          "aliasColors": {},
-          "seriesOverrides": [],
-          "links": []
-        },
-        {
-          "title": "ETS Tables Count",
-          "error": false,
-          "span": 4,
-          "editable": true,
-          "type": "graph",
-          "isNew": true,
-          "id": 5,
-          "datasource": "prom",
-          "renderer": "flot",
-          "x-axis": true,
-          "y-axis": true,
-          "y_formats": [
-            "short",
-            "short"
-          ],
-          "grid": {
-            "leftLogBase": 1,
-            "leftMax": null,
-            "rightMax": null,
-            "leftMin": null,
-            "rightMin": null,
-            "rightLogBase": 1,
-            "threshold1": null,
-            "threshold2": null,
-            "threshold1Color": "rgba(216, 200, 27, 0.27)",
-            "threshold2Color": "rgba(234, 112, 112, 0.22)"
-          },
-          "lines": true,
-          "fill": 1,
-          "linewidth": 2,
-          "points": false,
-          "pointradius": 5,
-          "bars": false,
-          "stack": false,
-          "percentage": false,
-          "legend": {
-            "show": true,
-            "values": false,
-            "min": false,
-            "max": false,
-            "current": false,
-            "total": false,
-            "avg": false
-          },
-          "nullPointMode": "connected",
-          "steppedLine": false,
-          "tooltip": {
-            "value_type": "cumulative",
-            "shared": true
-          },
-          "timeFrom": null,
-          "timeShift": null,
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "erlang_vm_ets_tables",
-              "intervalFactor": 2,
-              "metric": "erlang_vm_ets_tables",
-              "step": 2,
-              "legendFormat": ""
-            }
-          ],
-          "aliasColors": {},
-          "seriesOverrides": [],
-          "links": []
         }
       ],
       "title": "New row"
     },
     {
-      "title": "New row",
-      "height": "250px",
-      "editable": true,
       "collapse": false,
-      "panels": []
+      "editable": true,
+      "height": "250px",
+      "panels": [],
+      "title": "New row"
     }
   ],
   "time": {
@@ -488,6 +510,6 @@
   },
   "refresh": "5s",
   "schemaVersion": 8,
-  "version": 8,
+  "version": 10,
   "links": []
 }
