@@ -1,6 +1,7 @@
 PROJECT = rabbitmq_management_metrics
 
-DEPS = rabbitmq_management
+DEPS = rabbitmq_management prometheus
+dep_prometheus = git https://github.com/deadtrickster/prometheus.erl
 
 DEP_PLUGINS = rabbit_common/mk/rabbitmq-plugin.mk
 

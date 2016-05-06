@@ -2,6 +2,9 @@
  [{description, "RabbitMQ Prometheus.io metrics exporter"},
   {vsn, ""},
   {modules, []},
-  {mod, { prometheus, []}},
   {registered, []},
-  {applications, [kernel, stdlib, rabbit, rabbitmq_management]}]}.
+  {env, [{prometheus, [{default_collectors, [prometheus_vm_memory_collector,
+                                             prometheus_vm_statistics_collector,
+                                             prometheus_rabbitmq_overview_collector,
+                                             prometheus_rabbitmq_queues_collector]}]}]},
+  {applications, [kernel, stdlib, rabbit, rabbitmq_management, prometheus]}]}.

@@ -1,12 +1,17 @@
--module(prometheus_rabbitmq_queues).
-
--export([collect_mf/1,
+-module(prometheus_rabbitmq_queues_collector).
+-export([collect_mf/5,
          collect_metrics/3,
-         register/1]).
+         register/0,
+         register/1,
+         register/2]).
 
--include("prometheus.hrl").
+-include_lib("prometheus/include/prometheus.hrl").
 -include_lib("rabbit_common/include/rabbit.hrl").
+-compile({no_auto_import,[register/2]}).
 -import(rabbit_misc, [pget/2]).
+
+-behaviour(prometheus_collector).
+
 
 -define(QUEUE_GAUGES, [{"messages_ready", "Number of messages ready to be delivered to clients."},
                        {"messages_unacknowledged", "Number of messages delivered to clients but not yet acknowledged."},
@@ -33,7 +38,7 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
 
-collect_mf(Callback) ->
+collect_mf(Callback, _Registry, _Name, _Labels, _Help) ->
   AllQueues = lists:merge([[Queue || Queue <- list_queues(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
   [Callback(gauge, ?METRIC_NAME_PREFIX ++ QueueKey, [vhost, queue], Help, AllQueues) || {QueueKey, Help} <- ?QUEUE_GAUGES],
   [Callback(counter, ?METRIC_NAME_PREFIX ++ QueueKey, [vhost, queue], Help, AllQueues) || {QueueKey, Help} <- ?QUEUE_COUNTERS],
@@ -80,7 +85,13 @@ queue_value(Queue, Key) ->
   proplists:get_value(Key, Queue, '').
 
 register(Registry) ->
-  prometheus_registry:register_collector(Registry,  ?MODULE).
+  ok = prometheus_registry:register_collector(Registry,  ?MODULE).
+
+register() ->
+  register(default).
+
+register(_Spec, _Registry) ->
+  erlang:error(invalid_register_call).
 
 list_queues(VHost) ->
   Queues = rabbit_mgmt_db:augment_queues(

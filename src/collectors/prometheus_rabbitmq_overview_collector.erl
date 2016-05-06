@@ -1,13 +1,17 @@
--module(prometheus_rabbitmq_overview).
-
--export([collect_mf/1,
+-module(prometheus_rabbitmq_overview_collector).
+-export([collect_mf/5,
          collect_metrics/3,
-         register/1]).
+         register/0,
+         register/1,
+         register/2]).
 
--include("prometheus.hrl").
+-include_lib("prometheus/include/prometheus.hrl").
+-compile({no_auto_import,[register/2]}).
 -import(rabbit_misc, [pget/2]).
+ 
+-behaviour(prometheus_collector).
 
-collect_mf(Callback) ->
+collect_mf(Callback, _Registry, _Name, _Labels, _Help) ->
   Callback(gauge, rabbitmq_connections, [vhost], "RabbitMQ Connections count", []),
   Callback(gauge, rabbitmq_channels, [vhost], "RabbitMQ Channels count", []),
   Callback(gauge, rabbitmq_queues, [vhost], "RabbitMQ Queues count", []),
@@ -35,7 +39,13 @@ collect_metrics(rabbitmq_consumers, Callback, _MFData) ->
   Callback([], ets:info(consumers_by_queue, size)).
 
 register(Registry) ->
-  prometheus_registry:register_collector(Registry,  ?MODULE).
+  ok = prometheus_registry:register_collector(Registry,  ?MODULE).
+
+register() ->
+  register(default).
+
+register(_Spec, _Registry) ->
+  erlang:error(invalid_register_call).
 
 created_events(Type) ->
   ets:select(Type, [{{{'_', '$1'}, '$2', '_'}, [{'==', 'create', '$1'}],
