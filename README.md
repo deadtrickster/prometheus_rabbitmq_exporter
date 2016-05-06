@@ -1,4 +1,4 @@
-#Native RabbitMQ Prometheus.io exporter
+#RabbitMQ Prometheus.io exporter
 
 Implemented as RabbitMQ Management Plugin plugin.
 Also exports ErlangVM metrics.
