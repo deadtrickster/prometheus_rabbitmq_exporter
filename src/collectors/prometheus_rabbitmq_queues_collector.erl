@@ -1,13 +1,11 @@
 -module(prometheus_rabbitmq_queues_collector).
--export([collect_mf/5,
+-export([collect_mf/2,
          collect_metrics/3,
          register/0,
-         register/1,
-         register/2]).
+         register/1]).
 
 -include_lib("prometheus/include/prometheus.hrl").
 -include_lib("rabbit_common/include/rabbit.hrl").
--compile({no_auto_import,[register/2]}).
 -import(rabbit_misc, [pget/2]).
 
 -behaviour(prometheus_collector).
@@ -38,7 +36,7 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
 
-collect_mf(Callback, _Registry, _Name, _Labels, _Help) ->
+collect_mf(Callback, _Registry) ->
   AllQueues = lists:merge([[Queue || Queue <- list_queues(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
   [Callback(gauge, ?METRIC_NAME_PREFIX ++ QueueKey, [vhost, queue], Help, AllQueues) || {QueueKey, Help} <- ?QUEUE_GAUGES],
   [Callback(counter, ?METRIC_NAME_PREFIX ++ QueueKey, [vhost, queue], Help, AllQueues) || {QueueKey, Help} <- ?QUEUE_COUNTERS],
@@ -89,9 +87,6 @@ register(Registry) ->
 
 register() ->
   register(default).
-
-register(_Spec, _Registry) ->
-  erlang:error(invalid_register_call).
 
 list_queues(VHost) ->
   Queues = rabbit_mgmt_db:augment_queues(

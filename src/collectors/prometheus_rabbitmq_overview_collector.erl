@@ -1,5 +1,5 @@
 -module(prometheus_rabbitmq_overview_collector).
--export([collect_mf/5,
+-export([collect_mf/2,
          collect_metrics/3,
          register/0,
          register/1,
@@ -11,7 +11,7 @@
  
 -behaviour(prometheus_collector).
 
-collect_mf(Callback, _Registry, _Name, _Labels, _Help) ->
+collect_mf(Callback, _Registry) ->
   Callback(gauge, rabbitmq_connections, [vhost], "RabbitMQ Connections count", []),
   Callback(gauge, rabbitmq_channels, [vhost], "RabbitMQ Channels count", []),
   Callback(gauge, rabbitmq_queues, [vhost], "RabbitMQ Queues count", []),
