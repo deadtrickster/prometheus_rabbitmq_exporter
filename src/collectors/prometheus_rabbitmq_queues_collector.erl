@@ -1,13 +1,12 @@
 -module(prometheus_rabbitmq_queues_collector).
--export([collect_mf/2,
-         collect_metrics/3,
-         register/0,
-         register/1]).
+-export([register/0,
+         register/1,
+         deregister/1,
+         collect_mf/2,
+         collect_metrics/3]).
 
 -include_lib("prometheus/include/prometheus.hrl").
 -include_lib("rabbit_common/include/rabbit.hrl").
--import(rabbit_misc, [pget/2]).
-
 -behaviour(prometheus_collector).
 
 
@@ -36,6 +35,18 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
 
+%%====================================================================
+%% Collector API
+%%====================================================================
+
+register() ->
+  register(default).
+
+register(Registry) ->
+  ok = prometheus_registry:register_collector(Registry, ?MODULE).
+
+deregister(_) -> ok.
+
 collect_mf(Callback, _Registry) ->
   AllQueues = lists:merge([[Queue || Queue <- list_queues(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
   [Callback(gauge, ?METRIC_NAME_PREFIX ++ QueueKey, [vhost, queue], Help, AllQueues) || {QueueKey, Help} <- ?QUEUE_GAUGES],
@@ -53,6 +64,10 @@ collect_metrics("rabbitmq_queue_messages_delivered_total", Callback, AllQueues) 
 collect_metrics(MetricName, Callback, AllQueues) ->
   QueueKey = list_to_atom(string:sub_string(MetricName, 1 + length(?METRIC_NAME_PREFIX))),
   [maybe_call_metric_callback(Callback, Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues].
+
+%%====================================================================
+%% Private Parts
+%%====================================================================
 
 set_message_stats_metric_value(MSMName, Callback, Queue) ->
   case queue_value(Queue, message_stats) of
@@ -81,12 +96,6 @@ maybe_call_metric_callback(Callback, Queue, Value) ->
 
 queue_value(Queue, Key) ->
   proplists:get_value(Key, Queue, '').
-
-register(Registry) ->
-  ok = prometheus_registry:register_collector(Registry,  ?MODULE).
-
-register() ->
-  register(default).
 
 list_queues(VHost) ->
   Queues = rabbit_mgmt_db:augment_queues(

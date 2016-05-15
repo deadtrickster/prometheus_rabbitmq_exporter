@@ -1,15 +1,24 @@
 -module(prometheus_rabbitmq_overview_collector).
--export([collect_mf/2,
-         collect_metrics/3,
-         register/0,
+-export([register/0,
          register/1,
-         register/2]).
+         deregister/1,
+         collect_mf/2,
+         collect_metrics/3]).
 
 -include_lib("prometheus/include/prometheus.hrl").
--compile({no_auto_import,[register/2]}).
--import(rabbit_misc, [pget/2]).
- 
 -behaviour(prometheus_collector).
+
+%%====================================================================
+%% Collector API
+%%====================================================================
+
+register() ->
+  register(default).
+
+register(Registry) ->
+  ok = prometheus_registry:register_collector(Registry, ?MODULE).
+
+deregister(_) -> ok.
 
 collect_mf(Callback, _Registry) ->
   Callback(gauge, rabbitmq_connections, [vhost], "RabbitMQ Connections count", []),
@@ -17,9 +26,6 @@ collect_mf(Callback, _Registry) ->
   Callback(gauge, rabbitmq_queues, [vhost], "RabbitMQ Queues count", []),
   Callback(gauge, rabbitmq_exchanges, [vhost], "RabbitMQ Exchanges count", []),
   Callback(gauge, rabbitmq_consumers, [], "RabbitMQ Consumers count", []).
-
-filter_by_vhost(VHost, Channels) ->
-  [I || I <- Channels, pget(vhost, I) =:= VHost].
 
 collect_metrics(rabbitmq_connections, Callback, _MFData) ->
   AllConnections = created_events(connection_stats),
@@ -38,14 +44,12 @@ collect_metrics(rabbitmq_exchanges, Callback, _MFData) ->
 collect_metrics(rabbitmq_consumers, Callback, _MFData) ->
   Callback([], ets:info(consumers_by_queue, size)).
 
-register(Registry) ->
-  ok = prometheus_registry:register_collector(Registry,  ?MODULE).
+%%====================================================================
+%% Private Parts
+%%====================================================================
 
-register() ->
-  register(default).
-
-register(_Spec, _Registry) ->
-  erlang:error(invalid_register_call).
+filter_by_vhost(VHost, Channels) ->
+  [I || I <- Channels, rabbit_misc:pget(vhost, I) =:= VHost].
 
 created_events(Type) ->
   ets:select(Type, [{{{'_', '$1'}, '$2', '_'}, [{'==', 'create', '$1'}],
