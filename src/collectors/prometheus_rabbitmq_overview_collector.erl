@@ -51,6 +51,11 @@ collect_metrics(rabbitmq_consumers, Callback, _MFData) ->
 filter_by_vhost(VHost, Channels) ->
   [I || I <- Channels, rabbit_misc:pget(vhost, I) =:= VHost].
 
-created_events(Type) ->
-  ets:select(Type, [{{{'_', '$1'}, '$2', '_'}, [{'==', 'create', '$1'}],
-                     ['$2']}]).
+%% created_events(Type) ->
+%%   ets:select(Type, [{{{'_', '$1'}, '$2', '_'}, [{'==', 'create', '$1'}],
+%%                      ['$2']}]).
+
+created_events(connection_stats) ->
+  rabbit_mgmt_db:get_all_connections({no_range, no_range, no_range, no_range});
+created_events(channel_stats) ->
+  rabbit_mgmt_db:get_all_channels({no_range, no_range, no_range, no_range}).
