@@ -1,21 +1,18 @@
 -module(rabbit_mgmt_metrics_handler).
 
--export([init/3,
-         handle/2,
-         terminate/3]).
+-export([init/1,
+         content_types_provided/2,
+         render_metrics/2]).
 
 -include_lib("rabbitmq_management/include/rabbit_mgmt.hrl").
+-include_lib("webmachine/include/webmachine.hrl").
 -include_lib("amqp_client/include/amqp_client.hrl").
 
 %%--------------------------------------------------------------------
-init(_Type, Req, Opts) ->
-  {ok, Req, Opts}.
+init(_Config) -> {ok, #context{}}.
 
-handle(Req, State) ->
-  {ok, Req2} = cowboy_req:reply(200, [
-                                {<<"content-type">>, <<"text/plain; version=0.0.4">>}
-                               ], prometheus_text_format:format(), Req),
-  {ok, Req2, State}.
+content_types_provided(ReqData, Context) ->
+  {[{"text/plain; version=0.0.4", render_metrics}], ReqData, Context}.
 
-terminate(_Reason, _Req, _State) ->
-  ok.
+render_metrics(ReqData, Context) ->
+  {prometheus_text_format:format(), ReqData, Context}.
