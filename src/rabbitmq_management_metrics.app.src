@@ -11,5 +11,6 @@
                   prometheus]},
   
   {maintainers, ["Ilya Khaprov"]},
+  {broker_version_requirements, ["3.7.0"]},
   {licenses, ["MIT"]},
   {links, [{"Github", "https://github.com/deadtrickster/prometheus_rabbitmq_exporter"}]}]}.
