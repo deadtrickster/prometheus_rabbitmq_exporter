@@ -21,5 +21,7 @@ Download suitable version and follow regular [RabbitMQ plugin installation instr
 
 Do not forget to fire `rabbitmq-plugins enable`!
 
+Metrics url - `server:15672/api/metrics`
+
 ## License
 MIT
