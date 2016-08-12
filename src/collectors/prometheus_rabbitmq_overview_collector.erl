@@ -3,7 +3,15 @@
          register/1,
          deregister/1,
          collect_mf/2,
-         collect_metrics/3]).
+         collect_metrics/2]).
+
+-import(prometheus_model_helpers, [create_mf/5,
+                                   label_pairs/1,
+                                   gauge_metrics/1,
+                                   gauge_metric/1,
+                                   gauge_metric/2,
+                                   counter_metric/1,
+                                   counter_metric/2]).
 
 -include_lib("prometheus/include/prometheus.hrl").
 -behaviour(prometheus_collector).
@@ -21,28 +29,28 @@ register(Registry) ->
 deregister(_) -> ok.
 
 collect_mf(Callback, _Registry) ->
-  Callback(gauge, rabbitmq_connections, [vhost], "RabbitMQ Connections count", []),
-  Callback(gauge, rabbitmq_channels, [vhost], "RabbitMQ Channels count", []),
-  Callback(gauge, rabbitmq_queues, [vhost], "RabbitMQ Queues count", []),
-  Callback(gauge, rabbitmq_exchanges, [vhost], "RabbitMQ Exchanges count", []),
-  Callback(gauge, rabbitmq_consumers, [], "RabbitMQ Consumers count", []).
+  Callback(create_gauge(rabbitmq_connections, "RabbitMQ Connections count", [])),
+  Callback(create_gauge(rabbitmq_channels, "RabbitMQ Channels count", [])),
+  Callback(create_gauge(rabbitmq_queues, "RabbitMQ Queues count", [])),
+  Callback(create_gauge(rabbitmq_exchanges, "RabbitMQ Exchanges count", [])),
+  Callback(create_gauge(rabbitmq_consumers, "RabbitMQ Consumers count", [])).
 
-collect_metrics(rabbitmq_connections, Callback, _MFData) ->
+collect_metrics(rabbitmq_connections, _MFData) ->
   AllConnections = created_events(connection_stats),
   AllVHosts = rabbit_vhost:info_all([name]),
-  [Callback([VHost], length(filter_by_vhost(VHost, AllConnections))) || [{name, VHost}] <- AllVHosts];
-collect_metrics(rabbitmq_channels, Callback, _MFData) ->
+  [gauge_metric([{vhost, VHost}], length(filter_by_vhost(VHost, AllConnections))) || [{name, VHost}] <- AllVHosts];
+collect_metrics(rabbitmq_channels, _MFData) ->
   AllChannels = created_events(channel_stats),
   AllVHosts = rabbit_vhost:info_all([name]),
-  [Callback([VHost], length(filter_by_vhost(VHost, AllChannels))) || [{name, VHost}] <- AllVHosts];
-collect_metrics(rabbitmq_queues, Callback, _MFData) ->
+  [gauge_metric([{vhost, VHost}], length(filter_by_vhost(VHost, AllChannels))) || [{name, VHost}] <- AllVHosts];
+collect_metrics(rabbitmq_queues, _MFData) ->
   AllVHosts = rabbit_vhost:info_all([name]),
-  [Callback([VHost], length(rabbit_amqqueue:list(VHost))) || [{name, VHost}] <- AllVHosts];
-collect_metrics(rabbitmq_exchanges, Callback, _MFData) ->
+  [gauge_metric([{vhost, VHost}], length(rabbit_amqqueue:list(VHost))) || [{name, VHost}] <- AllVHosts];
+collect_metrics(rabbitmq_exchanges, _MFData) ->
   AllVHosts = rabbit_vhost:info_all([name]),
-  [Callback([VHost], length(rabbit_exchange:list(VHost))) || [{name, VHost}] <- AllVHosts];
-collect_metrics(rabbitmq_consumers, Callback, _MFData) ->
-  Callback([], ets:info(consumers_by_queue, size)).
+  [gauge_metric([{vhost, VHost}], length(rabbit_exchange:list(VHost))) || [{name, VHost}] <- AllVHosts];
+collect_metrics(rabbitmq_consumers, _MFData) ->
+  gauge_metric([], ets:info(consumers_by_queue, size)).
 
 %%====================================================================
 %% Private Parts
@@ -54,3 +62,6 @@ filter_by_vhost(VHost, Channels) ->
 created_events(Type) ->
   ets:select(Type, [{{{'_', '$1'}, '$2', '_'}, [{'==', 'create', '$1'}],
                      ['$2']}]).
+
+create_gauge(Name, Help, Data) ->
+  create_mf(Name, Help, gauge, ?MODULE, Data).
