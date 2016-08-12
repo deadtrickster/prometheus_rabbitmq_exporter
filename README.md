@@ -5,7 +5,7 @@ Also exports ErlangVM metrics.
 
 Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster/prometheus.erl)
 
-![screenshot](https://raw.githubusercontent.com/deadtrickster/prometheus_rabbitmq_exporter/master/priv/dashboards/RabbitMQErlangVM.png)
+![rabbitmq prometheus exporter grafana dashboard](http://i.imgur.com/tWiDw56.png?1)
 
 ## Versioning
 
