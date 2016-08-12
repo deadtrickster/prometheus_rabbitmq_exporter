@@ -4,6 +4,7 @@
 *~
 \#*
 .#*
+*.d
 /.erlang.mk/
 /cover/
 /deps/
