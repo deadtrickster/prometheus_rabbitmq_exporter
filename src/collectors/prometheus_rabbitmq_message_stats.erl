@@ -22,7 +22,7 @@ metrics() ->
 
 value(Entity, Name) ->
   case proplists:get_value(message_stats, Entity) of
-    undefined -> undefined;
+    undefined -> 0;
     MessageStats ->
-      proplists:get_value(Name, MessageStats)
+      proplists:get_value(Name, MessageStats, 0)
   end.
