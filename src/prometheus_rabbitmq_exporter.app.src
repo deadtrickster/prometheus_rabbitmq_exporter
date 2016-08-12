@@ -9,7 +9,7 @@
                   rabbit,
                   rabbitmq_management,
                   prometheus]},
-  
+
   {maintainers, ["Ilya Khaprov"]},
   {licenses, ["MIT"]},
   {links, [{"Github", "https://github.com/deadtrickster/prometheus_rabbitmq_exporter"}]}]}.

@@ -9,4 +9,3 @@ dispatcher() ->
   Format = prometheus_rabbitmq_exporter_config:format(),
   [{Path, prometheus_rabbitmq_exporter_handler, {binary_to_list(Format:content_type()), Format}}].
 web_ui()     -> [].
-
