@@ -1,4 +1,4 @@
-{application, rabbitmq_management_metrics,
+{application, prometheus_rabbitmq_exporter,
  [{description, "RabbitMQ Prometheus.io metrics exporter"},
   {vsn, ""},
   {modules, []},
