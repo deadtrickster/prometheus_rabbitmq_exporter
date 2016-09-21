@@ -1,7 +1,7 @@
 -module(prometheus_rabbitmq_queues_collector).
 -export([register/0,
          register/1,
-         deregister/1,
+         deregister_cleanup/1,
          collect_mf/2,
          collect_metrics/2]).
 
@@ -51,9 +51,9 @@ register() ->
 register(Registry) ->
   ok = prometheus_registry:register_collector(Registry, ?MODULE).
 
-deregister(_) -> ok.
+deregister_cleanup(_) -> ok.
 
-collect_mf(Callback, _Registry) ->
+collect_mf(_Registry, Callback) ->
   AllQueues = lists:merge([[Queue || Queue <- list_queues(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
   [Callback(create_gauge(?QUEUE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?QUEUE_GAUGES],
   [Callback(create_counter(?QUEUE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?QUEUE_COUNTERS],
@@ -63,7 +63,8 @@ collect_mf(Callback, _Registry) ->
       ok;
     MessagesStat ->
       collect_messages_stat(Callback, AllQueues, MessagesStat)
-  end.
+  end,
+  ok.
 
 %% [vhost, queue]
 collect_metrics("rabbitmq_queue_disk_reads", {QueueKey, AllQueues}) ->

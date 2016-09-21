@@ -1,7 +1,7 @@
 -module(prometheus_rabbitmq_exchanges_collector).
 -export([register/0,
          register/1,
-         deregister/1,
+         deregister_cleanup/1,
          collect_mf/2,
          collect_metrics/2]).
 
@@ -36,9 +36,9 @@ register() ->
 register(Registry) ->
   ok = prometheus_registry:register_collector(Registry, ?MODULE).
 
-deregister(_) -> ok.
+deregister_cleanup(_) -> ok.
 
-collect_mf(Callback, _Registry) ->
+collect_mf(_Registry, Callback) ->
   AllQueues = lists:merge([[Exchange || Exchange <- list_exchanges(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
   [Callback(create_gauge(?EXCHANGE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_GAUGES],
   [Callback(create_counter(?EXCHANGE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_COUNTERS],
@@ -48,7 +48,8 @@ collect_mf(Callback, _Registry) ->
       ok;
     MessagesStat ->
       collect_messages_stat(Callback, AllQueues, MessagesStat)
-  end.
+  end,
+  ok.
 
 %% messages_stat
 collect_metrics(_, {messages_stat, MSKey, AllQueues}) ->

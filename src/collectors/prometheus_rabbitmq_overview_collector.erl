@@ -1,7 +1,7 @@
 -module(prometheus_rabbitmq_overview_collector).
 -export([register/0,
          register/1,
-         deregister/1,
+         deregister_cleanup/1,
          collect_mf/2,
          collect_metrics/2]).
 
@@ -26,14 +26,15 @@ register() ->
 register(Registry) ->
   ok = prometheus_registry:register_collector(Registry, ?MODULE).
 
-deregister(_) -> ok.
+deregister_cleanup(_) -> ok.
 
-collect_mf(Callback, _Registry) ->
+collect_mf(_Registry, Callback) ->
   Callback(create_gauge(rabbitmq_connections, "RabbitMQ Connections count", [])),
   Callback(create_gauge(rabbitmq_channels, "RabbitMQ Channels count", [])),
   Callback(create_gauge(rabbitmq_queues, "RabbitMQ Queues count", [])),
   Callback(create_gauge(rabbitmq_exchanges, "RabbitMQ Exchanges count", [])),
-  Callback(create_gauge(rabbitmq_consumers, "RabbitMQ Consumers count", [])).
+  Callback(create_gauge(rabbitmq_consumers, "RabbitMQ Consumers count", [])),
+  ok.
 
 collect_metrics(rabbitmq_connections, _MFData) ->
   AllConnections = created_events(connection_stats),
