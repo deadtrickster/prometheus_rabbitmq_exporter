@@ -75,12 +75,16 @@ collect_metrics(_MetricName, {QueueKey, AllQueues}) ->
   [emit_gauge_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
 %% messages_stat
 collect_metrics(_, {messages_stat, MSKey, AllQueues}) ->
-  [counter_metric([{vhost, queue_vhost(Queue)}, {queue, queue_name(Queue)}], prometheus_rabbitmq_message_stats:value(Queue, MSKey))
+  [counter_metric(labels(Queue), prometheus_rabbitmq_message_stats:value(Queue, MSKey))
    || Queue <- AllQueues].
 
 %%====================================================================
 %% Private Parts
 %%====================================================================
+
+labels(Queue) ->
+  [{vhost, queue_vhost(Queue)},
+   {queue, queue_name(Queue)}].
 
 collect_messages_stat(Callback, AllQueues, MessagesStat) ->
   [Callback(create_counter(?QUEUE_METRIC_NAME(MetricName), Help, {messages_stat, MSKey, AllQueues}))
@@ -90,14 +94,14 @@ emit_counter_metric_if_defined(Queue, Value) ->
   case Value of
     undefined -> undefined;
     Value ->
-      counter_metric([{vhost, queue_vhost(Queue)}, {queue, queue_name(Queue)}], Value)
+      counter_metric(labels(Queue), Value)
   end.
 
 emit_gauge_metric_if_defined(Queue, Value) ->
   case Value of
     undefined -> undefined;
     Value ->
-      gauge_metric([{vhost, queue_vhost(Queue)}, {queue, queue_name(Queue)}], Value)
+      gauge_metric(labels(Queue), Value)
   end.
 
 queue_vhost(Queue) ->
