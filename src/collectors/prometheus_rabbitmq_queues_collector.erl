@@ -94,6 +94,8 @@ collect_messages_stat(Callback, AllQueues, MessagesStat) ->
 emit_counter_metric_if_defined(Queue, Value) ->
   case Value of
     undefined -> undefined;
+    '' ->
+      gauge_metric(labels(Queue), undefined);
     Value ->
       counter_metric(labels(Queue), Value)
   end.
@@ -101,6 +103,8 @@ emit_counter_metric_if_defined(Queue, Value) ->
 emit_gauge_metric_if_defined(Queue, Value) ->
   case Value of
     undefined -> undefined;
+    '' ->
+      gauge_metric(labels(Queue), undefined);
     Value ->
       gauge_metric(labels(Queue), Value)
   end.
