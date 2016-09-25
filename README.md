@@ -21,6 +21,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
      - [Statistics](#statistics)
      - [Memory](#memory)
    - [Process metrics](#process-metrics)
+   - [Exporter metrics](#exporter-metrics)
  - [License](#license)
 
 ## Versioning
@@ -394,6 +395,18 @@ Resident memory size in bytes;
 * `process_cpu_seconds_total{kind="utime|stime"}`<br />
 Type: counter.<br />
 Process CPU time.
+
+### Exporter Metrics
+
+Labels: `registry`, `content_type`.
+
+* `telemetry_scrape_duration_seconds`<br />
+Type: summary.<br />
+Scrape duration.
+
+* `telemetry_scrape_size_bytes`<br />
+Type: summary.<br />
+Scrape size, uncompressed.
 
 ## License
 MIT
