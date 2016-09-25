@@ -1,11 +1,27 @@
 #RabbitMQ Prometheus.io exporter
 
 Implemented as RabbitMQ Management Plugin plugin.
-Also exports ErlangVM metrics.
+Also exports Erlang VM amd process metrics (~ 80 metrics in total).
 
 Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster/prometheus.erl)
 
 ![rabbitmq prometheus exporter grafana dashboard](http://i.imgur.com/tWiDw56.png?1)
+
+## TOC
+ - [Versioning](#versioning)
+ - [Installation](#installation)
+ - [Configuration](#configuration)
+ - [Metrics](#metrics)
+   - [RabbitMQ specific metrics](#rabbitmq-specific-metrics)
+     - [Overview](#overview)
+     - [Queues](#queues)
+     - [Exchanges](#exchanges)
+   - [Erlang VM metrics](#erlang-vm-metrics)
+     - [System Info](#system-info)
+     - [Statistics](#statistics)
+     - [Memory](#memory)
+   - [Process metrics](#process-metrics)
+ - [License](#license)
 
 ## Versioning
 
