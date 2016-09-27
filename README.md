@@ -20,6 +20,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
      - [System Info](#system-info)
      - [Statistics](#statistics)
      - [Memory](#memory)
+     - [Mnesia](#mnesia)
    - [Process metrics](#process-metrics)
    - [Exporter metrics](#exporter-metrics)
  - [License](#license)
@@ -307,6 +308,10 @@ The total number of context switches since the system started.
 Type: counter.<br />
 The total number of garbage collections since the system started.
 
+* `erlang_vm_statistics_garbage_collection_bytes_reclaimed`<br />
+Type: counter.<br />
+The total number of bytes reclaimed by GC since the system started.
+
 * `erlang_vm_statistics_garbage_collection_words_reclaimed`<br />
 Type: counter.<br />
 The total number of words reclaimed by GC since the system started.
@@ -360,6 +365,39 @@ The total amount of memory currently allocated for the emulator
 that is not directly related to any Erlang process.
 Memory presented as processes is not included in this memory.
 
+### Mnesia
+
+* `erlang_mnesia_held_locks`<br />
+Type: gauge.<br />
+Number of held locks.
+
+* `erlang_mnesia_lock_queue`<br />
+Type: gauge.<br />
+Number of transactions waiting for a lock.
+
+* `erlang_mnesia_transaction_participants`<br />
+Type: gauge.<br />
+Number of participant transactions.
+
+* `erlang_mnesia_transaction_coordinators`<br />
+Type: gauge.<br />
+Number of coordinator transactions.
+
+* `erlang_mnesia_failed_transactions`<br />
+Type: counter.<br />
+Number of failed (i.e. aborted) transactions.
+
+* `erlang_mnesia_committed_transactions`<br />
+Type: gauge.<br />
+Number of committed transactions.
+
+* `erlang_mnesia_logged_transactions`<br />
+Type: counter.<br />
+Number of transactions logged.
+
+* `erlang_mnesia_restarted_transactions`<br />
+Type: counter.<br />
+Total number of transaction restarts.
 
 ### Process Metrics
 (Process info collector must be enabled)
