@@ -227,7 +227,7 @@ Count of subset of delivered messages which had the redelivered flag set.
 Type: counter.<br />
 Count of messages returned to publisher as unroutable.
 
-### Erlang VM Metrics
+### Erlang VM & OTP Metrics
 
 #### System Info
 
