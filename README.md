@@ -16,7 +16,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
      - [Overview](#overview)
      - [Queues](#queues)
      - [Exchanges](#exchanges)
-   - [Erlang VM metrics](#erlang-vm-metrics)
+   - [Erlang VM & OTP metrics](#erlang-vm-metrics)
      - [System Info](#system-info)
      - [Statistics](#statistics)
      - [Memory](#memory)
