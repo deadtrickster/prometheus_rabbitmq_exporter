@@ -98,30 +98,28 @@ register(Registry) ->
 deregister_cleanup(_) -> ok.
 
 collect_mf(_Registry, Callback) ->
-  [table_stat(Callback, Table) || Table <- ?RABBIT_TABLES],
+  Tables = [{Table, mnesia:table_info(Table, all)} || Table <- ?RABBIT_TABLES],
+  [mf(Callback, Metric, Tables) || Metric <- ?METRICS],
   ok.
 
-table_stat(Callback, Table) ->
-  TableInfo = mnesia:table_info(Table, all),
-  [table_metric(Callback, Table, Metric, TableInfo) || Metric <- ?METRICS].
-
-table_metric(Callback, Table, Metric, Info) ->
-  {Name, Type, Help, Value} = case Metric of
+mf(Callback, Metric, Tables) ->
+  {Name, Type, Help, Fun} = case Metric of
                                 {Key, Type1, Help1} ->
-                                  {Key, Type1, Help1, list_to_count(proplists:get_value(Key, Info))};
-                                {Key, Type1, Help1, Fun} ->
-                                  {Key, Type1, Help1, Fun(Table, Info)}
-                              end,
-  case Type of
-    gauge ->
-      Callback(create_gauge(?METRIC_NAME(Name), Help, {gauge, [{table, Table}], Value}));
-    untyped ->
-      Callback(create_untyped(?METRIC_NAME(Name), Help, {untyped, [{table, Table}], Value}))
-  end.
+                                {Key, Type1, Help1, fun (_Table, Info) ->
+                                                        list_to_count(proplists:get_value(Key, Info))
+                                                    end};
+                                {Key, Type1, Help1, Fun1} ->
+                                  {Key, Type1, Help1, Fun1}
+                            end,
+  Callback(create_mf(?METRIC_NAME(Name), Help, Type, ?MODULE, {Type, Fun, Tables})).
 
-collect_metrics(_, {gauge, Labels, Value}) ->
+
+collect_metrics(_, {Type, Fun, Tables}) ->
+  [metric(Type, [{table, Table}], Fun(Table, Info)) || {Table, Info} <- Tables].
+
+metric(gauge, Labels, Value) ->
   gauge_metric(Labels, Value);
-collect_metrics(_, {untyped, Labels, Value}) ->
+metric(untyped, Labels, Value) ->
   untyped_metric(Labels, Value).
 
 %%====================================================================
@@ -132,10 +130,3 @@ list_to_count(Value) when is_list(Value) ->
   length(Value);
 list_to_count(Value) ->
   Value.
-
-
-create_gauge(Name, Help, Data) ->
-  create_mf(Name, Help, gauge, ?MODULE, Data).
-
-create_untyped(Name, Help, Data) ->
-  create_mf(Name, Help, untyped, ?MODULE, Data).
