@@ -45,7 +45,7 @@
 
 %% metric {Key, Type, Help, &optional Fun}
 -define(METRICS, [{read_only, untyped, "Access mode of the table, 1 if table is read_only or 0 otherwise.",
-                   fun(Info) ->
+                   fun(_T, Info) ->
                        case proplists:get_value(access_mode, Info) of
                          read_only -> 1;
                          _  -> 0
@@ -54,14 +54,14 @@
                   {disc_copies, gauge, "Number of the nodes where a disc_copy of the table resides according to the schema."},
                   {disc_only_copies, gauge, "Number of the nodes where a disc_only_copy of the table resides according to the schema."},
                   {local_content, untyped, "If the table is configured to have locally unique content on each node, value is 1 or 0 otherwise.",
-                   fun(Info) ->
+                   fun(_T, Info) ->
                        case proplists:get_value(local_content, Info) of
                          true -> 1;
                          _  -> 0
                        end
                    end},
                   {majority_required, untyped, "If 1, a majority of the table replicas must be available for an update to succeed.",
-                   fun(Info) ->
+                   fun(_T, Info) ->
                        case proplists:get_value(majority, Info) of
                          true -> 1;
                          _  -> 0
@@ -69,13 +69,20 @@
                    end},
                   {master_nodes, gauge, "Number of the master nodes of a table."},
                   {memory_bytes, gauge, "The number of bytes allocated to the table on this node.",
-                   fun (Info) ->
+                   fun (_T, Info) ->
                        proplists:get_value(memory, Info) *  erlang:system_info(wordsize)
                    end},
                   {ram_copies, gauge, "Number of the nodes where a ram_copy of the table resides according to the schema."},
                   {records_count, gauge, "Number of records inserted in the table.",
-                   fun (Info) ->
+                   fun (_T, Info) ->
                        proplists:get_value(size, Info)
+                   end},
+                  {disk_size_bytes, gauge, "Disk space occupied by the table (DCL + DCD).",
+                   fun (T, _) ->
+                       filelib:fold_files(mnesia:system_info(directory), atom_to_list(T), false,
+                                          fun (Name, Acc) ->
+                                              Acc + filelib:file_size(Name)
+                                          end, 0)
                    end}]).
 
 %%====================================================================
@@ -103,7 +110,7 @@ table_metric(Callback, Table, Metric, Info) ->
                                 {Key, Type1, Help1} ->
                                   {Key, Type1, Help1, list_to_count(proplists:get_value(Key, Info))};
                                 {Key, Type1, Help1, Fun} ->
-                                  {Key, Type1, Help1, Fun(Info)}
+                                  {Key, Type1, Help1, Fun(Table, Info)}
                               end,
   case Type of
     gauge ->

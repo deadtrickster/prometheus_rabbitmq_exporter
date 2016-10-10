@@ -274,6 +274,10 @@ Number of the nodes where a ram_copy of the table resides according to the schem
 Type: gauge.<br />
 Number of records inserted in the table.
 
+* `rabbitmq_mnesia_table_disk_size_bytes`<br />
+Type: gauge.<br />
+Disk space occupied by the table (DCL + DCD).
+
 ### Erlang VM & OTP Metrics
 
 #### System Info
