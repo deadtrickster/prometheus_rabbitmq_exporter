@@ -16,6 +16,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
      - [Overview](#overview)
      - [Queues](#queues)
      - [Exchanges](#exchanges)
+	 - [Mnesia tables](#mnesia-tables)
    - [Erlang VM & OTP metrics](#erlang-vm--otp-metrics)
      - [System Info](#system-info)
      - [Statistics](#statistics)
@@ -230,6 +231,48 @@ Count of subset of delivered messages which had the redelivered flag set.
 * `rabbitmq_exchange_messages_returned_total`<br />
 Type: counter.<br />
 Count of messages returned to publisher as unroutable.
+
+#### Mnesia Tables
+
+Various metrics for RabbitMQ-specific Mnesia tables.
+
+Labels: `table`.
+
+* `rabbitmq_mnesia_table_read_only`<br />
+Type: boolean.<br />
+Access mode of the table, 1 if table is read_only or 0 otherwise.
+
+* `rabbitmq_mnesia_table_disc_copies`<br />
+Type: gauge.<br />
+Number of the nodes where a disc_copy of the table resides according to the schema.
+
+* `rabbitmq_mnesia_table_disc_only_copies`<br />
+Type: gauge.<br />
+Number of the nodes where a disc_only_copy of the table resides according to the schema.
+
+* `rabbitmq_mnesia_table_local_content`<br />
+Type: boolean.<br />
+If the table is configured to have locally unique content on each node, value is 1 or 0 otherwise.
+
+* `rabbitmq_mnesia_table_majority_required`<br />
+Type: boolean.<br />
+If 1, a majority of the table replicas must be available for an update to succeed.
+
+* `rabbitmq_mnesia_table_master_nodes`<br />
+Type: gauge.<br />
+Number of the master nodes of a table.
+
+* `rabbitmq_mnesia_table_memory_bytes`<br />
+Type: gauge.<br />
+The number of bytes allocated to the table on this node.
+
+* `rabbitmq_mnesia_table_ram_copies`<br />
+Type: gauge.<br />
+Number of the nodes where a ram_copy of the table resides according to the schema.
+
+* `rabbitmq_mnesia_table_records_count`<br />
+Type: gauge.<br />
+Number of records inserted in the table.
 
 ### Erlang VM & OTP Metrics
 
