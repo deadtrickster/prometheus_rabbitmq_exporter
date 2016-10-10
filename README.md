@@ -183,6 +183,10 @@ Total number of times messages have been read from disk by this queue since it s
 Type: counter.<br />
 Total number of times messages have been written to disk by this queue since it started.
 
+* `rabbitmq_queue_disk_size_bytes`<br />
+Type: gauge.<br />
+Disk space occupied by the queue.
+
 #### Exchanges
 
 Labels: `vhost`, `exchange`.

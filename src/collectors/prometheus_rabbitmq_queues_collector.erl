@@ -36,7 +36,8 @@
                        {message_bytes_persistent, "Like message_bytes but counting only those messages which are persistent."},
                        {consumers, "Number of consumers."},
                        {consumer_utilisation, "Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count."},
-                       {memory, "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures."}]).
+                       {memory, "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures."},
+                       {disk_size_bytes, "Disk space occupied by the queue."}]).
 
 -define(QUEUE_COUNTERS, [{disk_reads, "Total number of times messages have been read from disk by this queue since it started."},
                          {disk_writes, "Total number of times messages have been written to disk by this queue since it started."}]).
@@ -72,6 +73,8 @@ collect_metrics("rabbitmq_queue_disk_reads", {QueueKey, AllQueues}) ->
 collect_metrics("rabbitmq_queue_disk_writes", {QueueKey, AllQueues}) ->
   [emit_counter_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
 %% [vhost, queue]
+collect_metrics("rabbitmq_queue_disk_size_bytes", {_, AllQueues}) ->
+  [gauge_metric(labels(Queue), queue_dir_size(Queue)) || Queue <- AllQueues];
 collect_metrics(_MetricName, {QueueKey, AllQueues}) ->
   [emit_gauge_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
 %% messages_stat
@@ -115,6 +118,18 @@ queue_vhost(Queue) ->
 queue_name(Queue) ->
   proplists:get_value(name, Queue).
 
+queue_dir_size(Queue) ->
+  QueueDirName = queue_dir_name(Queue),
+  FullPath = [mnesia:system_info(directory), "/queues/", QueueDirName],
+  dir_size(FullPath).
+
+queue_dir_name(Queue) ->
+  VHost = queue_vhost(Queue),
+  Name = queue_name(Queue),
+  %% http://hustoknow.blogspot.ru/2014/03/how-rabbitmq-computes-name-of-its.html
+  <<Num:128>> = erlang:md5(term_to_binary(rabbit_misc:r(VHost, queue, Name))),
+  rabbit_misc:format("~.36B", [Num]).
+
 queue_value(Queue, Key) ->
   proplists:get_value(Key, Queue, undefined).
 
@@ -124,6 +139,12 @@ list_queues(VHost) ->
              {no_range, no_range, no_range, no_range},
              basic),
   Queues.
+
+dir_size(Dir) ->
+  filelib:fold_files(Dir, "", true,
+                     fun (Name, Acc) ->
+                         Acc + filelib:file_size(Name)
+                     end, 0).
 
 create_counter(Name, Help, Data) ->
   create_mf(Name, Help, counter, ?MODULE, Data).
