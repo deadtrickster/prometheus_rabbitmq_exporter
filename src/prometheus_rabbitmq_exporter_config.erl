@@ -24,6 +24,7 @@
                                          messages_delivered_no_ack_total,
                                          messages_get_total,
                                          messages_get_no_ack_total,
+                                         messages_deliver_get_total,
                                          messages_redelivered_total,
                                          messages_returned_total]).
 -define(DEFAULT_CONFIG, [{path, ?DEFAULT_PATH},
