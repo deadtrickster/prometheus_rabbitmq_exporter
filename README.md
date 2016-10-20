@@ -224,6 +224,10 @@ Count of messages delivered in acknowledgement mode in response to basic.get.
 Type: counter.<br />
 Count of messages delivered in no-acknowledgement mode in response to basic.get.
 
+* `rabbitmq_exchange_messages_deliver_get_total`<br />
+Type: counter.<br />
+Sum of *messages_delivered_total, *messages_delivered_no_ack_total, *messages_get_total and *messages_get_no_ack_total.
+
 * `rabbitmq_exchange_messages_redelivered_total`<br />
 Type: counter.<br />
 Count of subset of delivered messages which had the redelivered flag set.
