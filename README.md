@@ -17,6 +17,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
      - [Queues](#queues)
      - [Exchanges](#exchanges)
 	 - [Mnesia tables](#mnesia-tables)
+	 - [Nodes](#nodes)
    - [Erlang VM & OTP metrics](#erlang-vm--otp-metrics)
      - [System Info](#system-info)
      - [Statistics](#statistics)
@@ -281,6 +282,15 @@ Number of records inserted in the table.
 * `rabbitmq_mnesia_table_disk_size_bytes`<br />
 Type: gauge.<br />
 Disk space occupied by the table (DCL + DCD).
+
+#### Nodes
+
+Cluster/nodes metrics.
+
+* `rabbitmq_nodes_running`<br />
+Type: boolean.<br />
+Labels: name, type.<br />
+Node running status.
 
 ### Erlang VM & OTP Metrics
 
