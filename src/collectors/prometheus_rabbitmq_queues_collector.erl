@@ -113,10 +113,12 @@ emit_gauge_metric_if_defined(Queue, Value) ->
   end.
 
 queue_vhost(Queue) ->
-  proplists:get_value(vhost, Queue).
+  {resource, VHost, queue, _} = proplists:get_value(name, Queue),
+  VHost.
 
 queue_name(Queue) ->
-  proplists:get_value(name, Queue).
+  {resource, _, queue, Name} = proplists:get_value(name, Queue),
+  Name.
 
 queue_dir_size(Queue) ->
   QueueDirName = queue_dir_name(Queue),
@@ -134,10 +136,9 @@ queue_value(Queue, Key) ->
   proplists:get_value(Key, Queue, undefined).
 
 list_queues(VHost) ->
-  Queues = rabbit_mgmt_db:augment_queues(
-             [rabbit_mgmt_format:queue(Queue) || Queue <- rabbit_amqqueue:list(VHost) ++ rabbit_amqqueue:list_down(VHost)],
-             {no_range, no_range, no_range, no_range},
-             basic),
+  Queues = rabbit_mgmt_db:augment_queues(rabbit_amqqueue:info_all(VHost),
+                                         {no_range, no_range, no_range, no_range},
+                                         basic),
   Queues.
 
 dir_size(Dir) ->
