@@ -11,7 +11,9 @@
                                    gauge_metric/1,
                                    gauge_metric/2,
                                    counter_metric/1,
-                                   counter_metric/2]).
+                                   counter_metric/2,
+                                   untyped_metric/1,
+                                   untyped_metric/2]).
 
 -include_lib("prometheus/include/prometheus.hrl").
 -include_lib("rabbit_common/include/rabbit.hrl").
@@ -20,27 +22,43 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
 
--define(QUEUE_METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
+-define(METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
 
--define(QUEUE_GAUGES, [{messages_ready, "Number of messages ready to be delivered to clients."},
-                       {messages_unacknowledged, "Number of messages delivered to clients but not yet acknowledged."},
-                       {messages, "Sum of ready and unacknowledged messages (queue depth)."},
-                       {messages_ready_ram, "Number of messages from messages_ready which are resident in ram."},
-                       {messages_unacknowledged_ram, "Number of messages from messages_unacknowledged which are resident in ram."},
-                       {messages_ram, "Total number of messages which are resident in ram."},
-                       {messages_persistent, "Total number of persistent messages in the queue (will always be 0 for transient queues)."},
-                       {message_bytes, "Sum of the size of all message bodies in the queue. This does not include the message properties (including headers) or any overhead."},
-                       {message_bytes_ready, "Like message_bytes but counting only those messages ready to be delivered to clients."},
-                       {message_bytes_unacknowledged, "Like message_bytes but counting only those messages delivered to clients but not yet acknowledged."},
-                       {message_bytes_ram, "Like message_bytes but counting only those messages which are in RAM."},
-                       {message_bytes_persistent, "Like message_bytes but counting only those messages which are persistent."},
-                       {consumers, "Number of consumers."},
-                       {consumer_utilisation, "Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count."},
-                       {memory, "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures."},
-                       {disk_size_bytes, "Disk space occupied by the queue."}]).
-
--define(QUEUE_COUNTERS, [{disk_reads, "Total number of times messages have been read from disk by this queue since it started."},
-                         {disk_writes, "Total number of times messages have been written to disk by this queue since it started."}]).
+-define(METRICS, [{durable, boolean, "Whether or not the queue survives server restarts."},
+                  {auto_delete, boolean, "Whether the queue will be deleted automatically when no longer used."},
+                  {exclusive, boolean, "True if queue is exclusive (i.e. has owner_pid), false otherwise."},
+                  {messages_ready, gauge, "Number of messages ready to be delivered to clients."},
+                  {messages_unacknowledged, gauge, "Number of messages delivered to clients but not yet acknowledged."},
+                  {messages, gauge, "Sum of ready and unacknowledged messages (queue depth)."},
+                  {messages_ready_ram, gauge, "Number of messages from messages_ready which are resident in ram."},
+                  {messages_unacknowledged_ram, gauge, "Number of messages from messages_unacknowledged which are resident in ram."},
+                  {messages_ram, gauge, "Total number of messages which are resident in ram."},
+                  {messages_persistent, gauge, "Total number of persistent messages in the queue (will always be 0 for transient queues)."},
+                  {message_bytes, gauge, "Sum of the size of all message bodies in the queue. This does not include the message properties (including headers) or any overhead."},
+                  {message_bytes_ready, gauge, "Like message_bytes but counting only those messages ready to be delivered to clients."},
+                  {message_bytes_unacknowledged, gauge, "Like message_bytes but counting only those messages delivered to clients but not yet acknowledged."},
+                  {message_bytes_ram, gauge, "Like message_bytes but counting only those messages which are in RAM."},
+                  {message_bytes_persistent, gauge, "Like message_bytes but counting only those messages which are persistent."},
+                  {head_message_timestamp, gauge, "The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state."},
+                  {disk_reads, counter, "Total number of times messages have been read from disk by this queue since it started."},
+                  {disk_writes, counter, "Total number of times messages have been written to disk by this queue since it started."},
+                  {disk_size_bytes, gauge, "Disk space occupied by the queue.",
+                   fun (Queue) ->
+                       queue_dir_size(Queue)
+                   end},
+                  {consumers, gauge, "Number of consumers."},
+                  {consumer_utilisation, gauge, "Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count."},
+                  {memory, gauge, "Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures."},
+                  {state, gauge, "The state of the queue. NaN if queue is located on cluster nodes that are currently down. "
+                   "0 if queue is running normally. MsgCount if queue is synchronizing.",
+                   fun(Queue) ->
+                       case queue_value(Queue, state) of
+                         running -> 0;
+                         down -> undefined;
+                         {syncing, MsgCount} -> MsgCount
+                       end
+                   end}
+                 ]).
 
 %%====================================================================
 %% Collector API
@@ -56,8 +74,7 @@ deregister_cleanup(_) -> ok.
 
 collect_mf(_Registry, Callback) ->
   AllQueues = lists:merge([[Queue || Queue <- list_queues(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
-  [Callback(create_gauge(?QUEUE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?QUEUE_GAUGES],
-  [Callback(create_counter(?QUEUE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?QUEUE_COUNTERS],
+  [mf(Callback, Metric, AllQueues) || Metric <- ?METRICS],
 
   case prometheus_rabbitmq_exporter_config:queue_messages_stat() of
     [] ->
@@ -67,20 +84,40 @@ collect_mf(_Registry, Callback) ->
   end,
   ok.
 
-%% [vhost, queue]
-collect_metrics("rabbitmq_queue_disk_reads", {QueueKey, AllQueues}) ->
-  [emit_counter_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
-collect_metrics("rabbitmq_queue_disk_writes", {QueueKey, AllQueues}) ->
-  [emit_counter_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
-%% [vhost, queue]
-collect_metrics("rabbitmq_queue_disk_size_bytes", {_, AllQueues}) ->
-  [gauge_metric(labels(Queue), queue_dir_size(Queue)) || Queue <- AllQueues];
-collect_metrics(_MetricName, {QueueKey, AllQueues}) ->
-  [emit_gauge_metric_if_defined(Queue, queue_value(Queue, QueueKey)) || Queue <- AllQueues];
+mf(Callback, Metric, Queues) ->
+  {Name, Type, Help, Fun} = case Metric of
+                              {Key, Type1, Help1} ->
+                                {Key, Type1, Help1, fun (Queue) ->
+                                                        list_to_count(queue_value(Queue, Key))
+                                                    end};
+                              {Key, Type1, Help1, Fun1} ->
+                                {Key, Type1, Help1, Fun1}
+                            end,
+  Callback(create_mf(?METRIC_NAME(Name), Help, catch_boolean(Type), ?MODULE, {Type, Fun, Queues})).
+
+
 %% messages_stat
 collect_metrics(_, {messages_stat, MSKey, AllQueues}) ->
   [counter_metric(labels(Queue), prometheus_rabbitmq_message_stats:value(Queue, MSKey))
-   || Queue <- AllQueues].
+   || Queue <- AllQueues];
+collect_metrics(_, {Type, Fun, Queues}) ->
+  [metric(Type, labels(Queue), Fun(Queue)) || Queue <- Queues].
+
+
+metric(counter, Labels, Value) ->
+  emit_counter_metric_if_defined(Labels, Value);
+metric(gauge, Labels, Value) ->
+  emit_gauge_metric_if_defined(Labels, Value);
+metric(untyped, Labels, Value) ->
+  untyped_metric(Labels, Value);
+metric(boolean, Labels, Value0) ->
+  Value = case Value0 of
+            true -> 1;
+            false -> 0;
+            undefined -> undefined
+          end,
+  untyped_metric(Labels, Value).
+
 
 %%====================================================================
 %% Private Parts
@@ -90,26 +127,31 @@ labels(Queue) ->
   [{vhost, queue_vhost(Queue)},
    {queue, queue_name(Queue)}].
 
+catch_boolean(boolean) ->
+    untyped;
+     catch_boolean(T) ->
+         T.
+
 collect_messages_stat(Callback, AllQueues, MessagesStat) ->
-  [Callback(create_counter(?QUEUE_METRIC_NAME(MetricName), Help, {messages_stat, MSKey, AllQueues}))
+  [Callback(create_counter(?METRIC_NAME(MetricName), Help, {messages_stat, MSKey, AllQueues}))
    || {MSKey, MetricName, Help} <- prometheus_rabbitmq_message_stats:metrics(), lists:member(MetricName, MessagesStat)].
 
-emit_counter_metric_if_defined(Queue, Value) ->
+emit_counter_metric_if_defined(Labels, Value) ->
   case Value of
     undefined -> undefined;
     '' ->
-      gauge_metric(labels(Queue), undefined);
+      counter_metric(Labels, undefined);
     Value ->
-      counter_metric(labels(Queue), Value)
+      counter_metric(Labels, Value)
   end.
 
-emit_gauge_metric_if_defined(Queue, Value) ->
+emit_gauge_metric_if_defined(Labels, Value) ->
   case Value of
     undefined -> undefined;
     '' ->
-      gauge_metric(labels(Queue), undefined);
+      gauge_metric(Labels, undefined);
     Value ->
-      gauge_metric(labels(Queue), Value)
+      gauge_metric(Labels, Value)
   end.
 
 queue_vhost(Queue) ->
@@ -141,6 +183,11 @@ list_queues(VHost) ->
                                          basic),
   Queues.
 
+list_to_count(Value) when is_list(Value) ->
+  length(Value);
+list_to_count(Value) ->
+  Value.
+
 dir_size(Dir) ->
   filelib:fold_files(Dir, "", true,
                      fun (Name, Acc) ->
@@ -149,6 +196,3 @@ dir_size(Dir) ->
 
 create_counter(Name, Help, Data) ->
   create_mf(Name, Help, counter, ?MODULE, Data).
-
-create_gauge(Name, Help, Data) ->
-  create_mf(Name, Help, gauge, ?MODULE, Data).

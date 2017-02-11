@@ -81,6 +81,18 @@ RabbitMQ Consumers count.
 
 Labels: `vhost`, `queue`.
 
+* `rabbitmq_queue_durable`<br />
+Type: boolean.<br />
+Whether or not the queue survives server restarts.
+
+* `rabbitmq_queue_auto_delete`<br />
+Type: boolean.<br />
+Whether the queue will be deleted automatically when no longer used.
+
+* `rabbitmq_queue_exclusive`<br />
+Type: boolean.<br />
+True if queue is exclusive (i.e. has owner_pid), false otherwise.
+
 * `rabbitmq_queue_messages_ready`<br />
 Type: gauge.<br />
 Number of messages ready to be delivered to clients.
@@ -129,6 +141,38 @@ Like message_bytes but counting only those messages which are in RAM.
 Type: gauge.<br />
 Like message_bytes but counting only those messages which are persistent.
 
+* `rabbitmq_queue_head_message_timestamp`<br />
+Type: gauge.<br />
+The timestamp property of the first message in the queue, if present. Timestamps of messages only appear when they are in the paged-in state.
+
+* `rabbitmq_queue_disk_reads`<br />
+Type: counter.<br />
+Total number of times messages have been read from disk by this queue since it started.
+
+* `rabbitmq_queue_disk_writes`<br />
+Type: counter.<br />
+Total number of times messages have been written to disk by this queue since it started.
+
+* `rabbitmq_queue_disk_size_bytes`<br />
+Type: gauge.<br />
+Disk space occupied by the queue.
+
+* `rabbitmq_queue_consumers`<br />
+Type: gauge.<br />
+Number of consumers.
+
+* `rabbitmq_queue_consumer_utilization`<br />
+Type: gauge.<br />
+Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.
+
+* `rabbitmq_queue_memory`<br />
+Type: gauge.<br />
+Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.
+
+* `rabbitmq_queue_state`<br />
+Type: gauge.<br />
+The state of the queue. NaN if queue is located on cluster nodes that are currently down. 0 if queue is running normally. MsgCount if queue is synchronising.
+
 * `rabbitmq_queue_messages_published_total`<br />
 Type: counter.<br />
 Count of messages published.
@@ -164,30 +208,6 @@ Count of subset of delivered messages which had the redelivered flag set.
 * `rabbitmq_queue_messages_returned_total`<br />
 Type: counter.<br />
 Count of messages returned to publisher as unroutable.
-
-* `rabbitmq_queue_consumers`<br />
-Type: gauge.<br />
-Number of consumers.
-
-* `rabbitmq_queue_consumer_utilization`<br />
-Type: gauge.<br />
-Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.
-
-* `rabbitmq_queue_memory`<br />
-Type: gauge.<br />
-Bytes of memory consumed by the Erlang process associated with the queue, including stack, heap and internal structures.
-
-* `rabbitmq_queue_disk_reads`<br />
-Type: counter.<br />
-Total number of times messages have been read from disk by this queue since it started.
-
-* `rabbitmq_queue_disk_writes`<br />
-Type: counter.<br />
-Total number of times messages have been written to disk by this queue since it started.
-
-* `rabbitmq_queue_disk_size_bytes`<br />
-Type: gauge.<br />
-Disk space occupied by the queue.
 
 #### Exchanges
 
