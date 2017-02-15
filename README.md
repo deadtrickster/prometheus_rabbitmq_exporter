@@ -69,7 +69,7 @@ RabbitMQ Channels count.
 Type: gauge.<br />
 RabbitMQ Queues count.
 
-* `rabbimq_exchanges`<br />
+* `rabbitmq_exchanges`<br />
 Type: gauge.<br />
 RabbitMQ Exchanges count.
 
@@ -133,7 +133,7 @@ Like message_bytes but counting only those messages ready to be delivered to cli
 Type: gauge.<br />
 Like message_bytes but counting only those messages delivered to clients but not yet acknowledged.
 
-* `rabbitmq_queue_messages_bytes_ram`<br />
+* `rabbitmq_queue_message_bytes_ram`<br />
 Type: gauge.<br />
 Like message_bytes but counting only those messages which are in RAM.
 
@@ -161,7 +161,7 @@ Disk space occupied by the queue.
 Type: gauge.<br />
 Number of consumers.
 
-* `rabbitmq_queue_consumer_utilization`<br />
+* `rabbitmq_queue_consumer_utilisation`<br />
 Type: gauge.<br />
 Fraction of the time (between 0.0 and 1.0) that the queue is able to immediately deliver messages to consumers. This can be less than 1.0 if consumers are limited by network congestion or prefetch count.
 
