@@ -33,12 +33,11 @@ deregister_cleanup(_) -> ok.
 
 collect_mf(_Registry, Callback) ->
   Nodes = all_nodes_raw(),
-  [Callback(create_untyped(rabbitmq_nodes_up, "Node runnning status", Node)) || Node <- Nodes],
-
+  Callback(create_untyped(rabbitmq_node_up, "Node runnning status", Nodes)),
   ok.
 
-collect_metrics(rabbitmq_nodes_up, Node) ->
-  untyped_metric(labels(Node), node_running(Node)).
+collect_metrics(rabbitmq_node_up, Nodes) ->
+  [untyped_metric(labels(Node), node_running(Node)) || Node <- Nodes].
 
 %%====================================================================
 %% Private Parts

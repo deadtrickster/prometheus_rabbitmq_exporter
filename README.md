@@ -307,7 +307,7 @@ Disk space occupied by the table (DCL + DCD).
 
 Cluster/nodes metrics.
 
-* `rabbitmq_nodes_running`<br />
+* `rabbitmq_node_up`<br />
 Type: boolean.<br />
 Labels: name, type.<br />
 Node running status.
