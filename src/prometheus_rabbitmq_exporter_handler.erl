@@ -1,24 +1,34 @@
 -module(prometheus_rabbitmq_exporter_handler).
 
--export([init/1,
-         content_types_provided/2,
-         render_metrics/2]).
-
--include_lib("webmachine/include/webmachine.hrl").
+-export([init/3,
+         handle/2]).
 
 %%--------------------------------------------------------------------
-init(Config) -> {ok, Config}.
+init(_Type, Req, Opts) ->
+  {ok, Req, Opts}.
 
-content_types_provided(ReqData, {_, ContentType, _} = Config) ->
-  {[{ContentType, render_metrics}], ReqData, Config}.
+handle(Req, {Registry}) ->
+  URI = true,
+  GetHeader = fun(Name, Default) ->
+                  {Value, _} = cowboy_req:header(iolist_to_binary(Name), Req, Default),
+                  Value
+              end,
 
-render_metrics(ReqData, {Registry, ContentType, Format} = Config) ->
-  Scrape = prometheus_summary:observe_duration(Registry,
-                                               telemetry_scrape_duration_seconds,
-                                               [Registry, ContentType],
-                                               fun () -> Format:format(Registry) end),
-  prometheus_summary:observe(Registry,
-                             telemetry_scrape_size_bytes,
-                             [Registry, ContentType],
-                             iolist_size(Scrape)),
-  {Scrape, ReqData, Config}.
+  %% TODO: check method, response only to GET
+  {Code, RespHeaders0, Body} = prometheus_http:reply(#{path => URI,
+                                                       headers => GetHeader,
+                                                       registry => Registry,
+                                                       standalone => false}),
+
+  ContentLength = integer_to_list(iolist_size(Body)),
+  RespHeaders = lists:map(fun to_cowboy_headers/1,
+                          RespHeaders0 ++ [{content_length, ContentLength}]),
+
+  {ok, Req2} = cowboy_req:reply(Code, RespHeaders, Body, Req),
+  {ok, Req2, undefined}.
+
+to_cowboy_headers({Name, Value}) ->
+  {to_cowboy_name(Name), Value}.
+
+to_cowboy_name(Name) ->
+  binary:replace(atom_to_binary(Name, utf8), <<"_">>, <<"-">>).

@@ -14,3 +14,4 @@
 /plugins/
 
 /rabbitmq_management_metrics.d
+erl_crash.dump
