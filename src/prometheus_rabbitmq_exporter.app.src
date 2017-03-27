@@ -1,6 +1,6 @@
 {application, prometheus_rabbitmq_exporter,
  [{description, "RabbitMQ Prometheus.io metrics exporter"},
-  {vsn, ""},
+  {vsn, "v3.6.8.1"},
   {modules, []},
   {registered, []},
   {env, []},

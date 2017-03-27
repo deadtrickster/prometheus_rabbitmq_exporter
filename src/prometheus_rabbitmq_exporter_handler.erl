@@ -1,7 +1,8 @@
 -module(prometheus_rabbitmq_exporter_handler).
 
 -export([init/3,
-         handle/2]).
+         handle/2,
+         terminate/3]).
 
 %%--------------------------------------------------------------------
 init(_Type, Req, Opts) ->
@@ -26,6 +27,9 @@ handle(Req, {Registry}) ->
 
   {ok, Req2} = cowboy_req:reply(Code, RespHeaders, Body, Req),
   {ok, Req2, undefined}.
+
+terminate(_Reason, _Req, _State) ->
+  ok.
 
 to_cowboy_headers({Name, Value}) ->
   {to_cowboy_name(Name), Value}.
