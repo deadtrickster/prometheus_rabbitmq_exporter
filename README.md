@@ -1,4 +1,4 @@
-#RabbitMQ Prometheus.io exporter
+# RabbitMQ Prometheus.io exporter
 
 Implemented as RabbitMQ Management Plugin plugin.
 Also exports Erlang VM amd process metrics (~ 100 metrics in total).
@@ -34,12 +34,16 @@ Plugin version should be read as follows: 3.7.1.x - where 3.7.1 is required Rabb
 
 ## Installation
 
- - [Release for RabbitMQ 3.6.5](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.5.2)
- - [Release for RabbitMQ 3.7](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.7_1)
+ - [Release for RabbitMQ 3.6.8](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.8.1)
+ - [Release for RabbitMQ 3.6.5](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.5.9)
 
 Download suitable version and follow regular [RabbitMQ plugin installation instructions](http://www.rabbitmq.com/installing-plugins.html).
 
 Do not forget to fire `rabbitmq-plugins enable`!
+
+
+ #### Latest Docker:
+ `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus:3.6.8.1`
 
 ## Configuration
 
