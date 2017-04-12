@@ -54,6 +54,7 @@
                    fun(Queue) ->
                        case queue_value(Queue, state) of
                          running -> 0;
+                         undefined -> undefined;
                          down -> undefined;
                          {syncing, MsgCount} -> MsgCount
                        end
@@ -155,12 +156,10 @@ emit_gauge_metric_if_defined(Labels, Value) ->
   end.
 
 queue_vhost(Queue) ->
-  {resource, VHost, queue, _} = proplists:get_value(name, Queue),
-  VHost.
+  proplists:get_value(vhost, Queue).
 
 queue_name(Queue) ->
-  {resource, _, queue, Name} = proplists:get_value(name, Queue),
-  Name.
+  proplists:get_value(name, Queue).
 
 queue_dir_size(Queue) ->
   QueueDirName = queue_dir_name(Queue),
@@ -177,8 +176,11 @@ queue_dir_name(Queue) ->
 queue_value(Queue, Key) ->
   proplists:get_value(Key, Queue, undefined).
 
+vhost_queues(VHost) ->
+  [rabbit_mgmt_format:queue(Q) || Q <- rabbit_amqqueue:list(VHost)].
+
 list_queues(VHost) ->
-  Queues = rabbit_mgmt_db:augment_queues(rabbit_amqqueue:info_all(VHost),
+  Queues = rabbit_mgmt_db:augment_queues(vhost_queues(VHost),
                                          {no_range, no_range, no_range, no_range},
                                          basic),
   Queues.
