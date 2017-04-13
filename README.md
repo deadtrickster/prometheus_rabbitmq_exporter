@@ -53,6 +53,26 @@ This exporter supports the following options via `rabbitmq_exporter` entry of `p
  - `exchange_messages_stat` - same as `queue_messages_state` but for the exchanges;
  - `queue_messages_stat` - messages state to export. Default is hopefully reasonable. You can read more about possible values [here](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_5/priv/www/doc/stats.html).
 
+Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path`:
+```erlang
+[
+        { rabbit, [
+                { loopback_users, [ ] },
+                { tcp_listeners, [ 5672 ] },
+                { ssl_listeners, [ ] },
+                { hipe_compile, false }
+        ] },
+        %% Be careful to declare the "prometheus" app environment before the "rabbitmq_management" one.
+        { prometheus, [ { rabbitmq_exporter, [
+                { path, "/mymetrics" }
+        ] } ] },
+        { rabbitmq_management, [ { listener, [
+                { port, 15672 },
+                { ssl, false }
+        ] } ] }
+].
+```
+
 For the latest list of suported options look [here](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/blob/master/src/prometheus_rabbitmq_exporter_config.erl).
 
 ## Metrics
