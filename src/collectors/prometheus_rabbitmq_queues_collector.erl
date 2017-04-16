@@ -15,8 +15,7 @@
                                    untyped_metric/1,
                                    untyped_metric/2]).
 
--include_lib("prometheus/include/prometheus.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("prometheus_rabbitmq_exporter.hrl").
 -behaviour(prometheus_collector).
 
 
@@ -181,8 +180,7 @@ vhost_queues(VHost) ->
 
 list_queues(VHost) ->
   Queues = rabbit_mgmt_db:augment_queues(vhost_queues(VHost),
-                                         {no_range, no_range, no_range, no_range},
-                                         basic),
+                                         ?NO_RANGE, basic),
   Queues.
 
 list_to_count(Value) when is_list(Value) ->

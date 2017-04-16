@@ -6,8 +6,7 @@
          collect_mf/2,
          collect_metrics/2]).
 
--include_lib("prometheus/include/prometheus.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("prometheus_rabbitmq_exporter.hrl").
 
 -import(prometheus_model_helpers, [create_mf/5,
                                    label_pairs/1,

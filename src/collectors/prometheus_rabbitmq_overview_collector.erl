@@ -13,7 +13,7 @@
                                    counter_metric/1,
                                    counter_metric/2]).
 
--include_lib("prometheus/include/prometheus.hrl").
+-include("prometheus_rabbitmq_exporter.hrl").
 -behaviour(prometheus_collector).
 
 %%====================================================================
@@ -65,9 +65,9 @@ filter_by_vhost(VHost, Channels) ->
 %%                      ['$2']}]).
 
 created_events(connection_stats) ->
-  rabbit_mgmt_db:get_all_connections({no_range, no_range, no_range, no_range});
+  rabbit_mgmt_db:get_all_connections(?NO_RANGE);
 created_events(channel_stats) ->
-  rabbit_mgmt_db:get_all_channels({no_range, no_range, no_range, no_range}).
+  rabbit_mgmt_db:get_all_channels(?NO_RANGE).
 
 create_gauge(Name, Help, Data) ->
   create_mf(Name, Help, gauge, ?MODULE, Data).

@@ -13,10 +13,9 @@
                                    counter_metric/1,
                                    counter_metric/2]).
 
--include_lib("prometheus/include/prometheus.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
--behaviour(prometheus_collector).
+-include("prometheus_rabbitmq_exporter.hrl").
 
+-behaviour(prometheus_collector).
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_exchange_").
 
@@ -98,8 +97,7 @@ exchange_type(Exchange) ->
 list_exchanges(VHost) ->
   rabbit_mgmt_db:augment_exchanges(
     [rabbit_mgmt_format:exchange(X) || X <- rabbit_exchange:info_all(VHost)],
-    {no_range, no_range, no_range, no_range},
-    basic).
+    ?NO_RANGE, basic).
 
 create_counter(Name, Help, Data) ->
   create_mf(Name, Help, counter, ?MODULE, Data).
