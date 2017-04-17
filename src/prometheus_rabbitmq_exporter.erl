@@ -5,7 +5,7 @@
 -export([dispatcher/0, web_ui/0]).
 
 dispatcher() ->
-  application:ensure_all_started(prometheus),
+  {ok, _} = application:ensure_all_started(prometheus),
   Path = prometheus_rabbitmq_exporter_config:path(),
   Registry = default,
 
