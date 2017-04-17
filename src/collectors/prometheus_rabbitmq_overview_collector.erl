@@ -16,6 +16,9 @@
 -include("prometheus_rabbitmq_exporter.hrl").
 -behaviour(prometheus_collector).
 
+-define(METRIC_NAME_PREFIX, "rabbitmq_").
+-define(METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
+
 %%====================================================================
 %% Collector API
 %%====================================================================
@@ -34,8 +37,15 @@ collect_mf(_Registry, Callback) ->
   Callback(create_gauge(rabbitmq_queues, "RabbitMQ Queues count", [])),
   Callback(create_gauge(rabbitmq_exchanges, "RabbitMQ Exchanges count", [])),
   Callback(create_gauge(rabbitmq_consumers, "RabbitMQ Consumers count", [])),
+
+
+  Overview = rabbit_mgmt_db:get_overview(all, ?NO_RANGE),
+
+  collect_messages_stat(Callback, proplists:get_value(message_stats, Overview)),
   ok.
 
+collect_metrics(_, {messages_stat, MSKey, Stats}) ->
+  counter_metric([], proplists:get_value(MSKey, Stats));
 collect_metrics(rabbitmq_connections, _MFData) ->
   AllConnections = created_events(connection_stats),
   AllVHosts = rabbit_vhost:info_all([name]),
@@ -57,6 +67,11 @@ collect_metrics(rabbitmq_consumers, _MFData) ->
 %% Private Parts
 %%====================================================================
 
+collect_messages_stat(Callback, Stats) ->
+  [Callback(create_counter(?METRIC_NAME(MetricName), Help, {messages_stat, MSKey, Stats}))
+   || {MSKey, MetricName, Help} <- prometheus_rabbitmq_message_stats:metrics()].
+
+
 filter_by_vhost(VHost, Channels) ->
   [I || I <- Channels, rabbit_misc:pget(vhost, I) =:= VHost].
 
@@ -71,3 +86,6 @@ created_events(channel_stats) ->
 
 create_gauge(Name, Help, Data) ->
   create_mf(Name, Help, gauge, ?MODULE, Data).
+
+create_counter(Name, Help, Data) ->
+  create_mf(Name, Help, counter, ?MODULE, Data).
