@@ -634,7 +634,7 @@
               "expr": "process_virtual_memory_bytes{job=\"rabbitmq\"}",
               "intervalFactor": 2,
               "step": 2,
-              "legendFormat": "Vertual Memory"
+              "legendFormat": "Virtual Memory"
             },
             {
               "expr": "process_resident_memory_bytes{job=\"rabbitmq\"}",
