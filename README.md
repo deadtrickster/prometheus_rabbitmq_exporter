@@ -107,6 +107,58 @@ RabbitMQ Exchanges count.
 Type: gauge.<br />
 RabbitMQ Consumers count.
 
+* `rabbitmq_queues_disk_reads`<br />
+Type: counter.<br />
+Total number of times messages have been read from disk by all queues.
+
+* `rabbitmq_queues_disk_writes`<br />
+Type: counter.<br />
+Total number of times messages have been written to disk by all queues.
+
+* `rabbitmq_messages_ready`<br />
+Type: gauge.<br />
+Messages ready for delivery.
+
+* `rabbitmq_messages_unacknowledged`<br />
+Type: gauge.<br />
+Delivered but unacknowledged messages.
+
+* `rabbitmq_messages_published_total`<br />
+Type: counter.<br />
+Count of messages published.
+
+* `rabbitmq_messages_confirmed_total`<br />
+Type: counter.<br />
+Count of messages confirmed.
+
+* `rabbitmq_messages_delivered_total`<br />
+Type: counter.<br />
+Count of messages delivered in acknowledgement mode to consumers.
+
+* `rabbitmq_messages_delivered_no_ack_total`<br />
+Type: counter.<br />
+Count of messages delivered in no-acknowledgement mode to consumers.
+
+* `rabbitmq_messages_get_total`<br />
+Type: counter.<br />
+Count of messages delivered in acknowledgement mode in response to basic.get.
+
+* `rabbitmq_messages_get_no_ack_total`<br />
+Type: counter.<br />
+Count of messages delivered in no-acknowledgement mode in response to basic.get.
+
+* `rabbitmq_messages_deliver_get_total`<br />
+Type: counter.<br />
+Sum of messages_delivered_total, messages_delivered_no_ack_total, messages_get_total and messages_get_no_ack_total.
+
+* `rabbitmq_messages_redelivered_total`<br />
+Type: counter.<br />
+Count of subset of delivered messages which had the redelivered flag set.
+
+* `rabbitmq_messages_returned_total`<br />
+Type: counter.<br />
+Count of messages returned to publisher as unroutable.
+
 #### Queues
 
 Labels: `vhost`, `queue`.
