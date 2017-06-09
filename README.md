@@ -43,7 +43,7 @@ Download suitable version and follow regular [RabbitMQ plugin installation instr
  rabbitmq-plugins enable accept
  rabbitmq-plugins enable prometheus
  rabbitmq-plugins enable prometheus_httpd
- prometheus_rabbitmq_exporter
+ rabbitmq-plugins enable prometheus_rabbitmq_exporter
 ```
 
 If you are running on linux you may find `prometheus_process_exporter` useful.
