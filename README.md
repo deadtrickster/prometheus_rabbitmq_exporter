@@ -34,16 +34,56 @@ Plugin version should be read as follows: 3.7.1.x - where 3.7.1 is required Rabb
 
 ## Installation
 
- - [Release for RabbitMQ 3.6.8](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.8.1)
+ - [Release for RabbitMQ 3.6.8 and 3.6.9](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.9.1)
  - [Release for RabbitMQ 3.6.5](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.5.9)
 
 Download suitable version and follow regular [RabbitMQ plugin installation instructions](http://www.rabbitmq.com/installing-plugins.html).
 
-Do not forget to fire `rabbitmq-plugins enable`!
+```
+ rabbitmq-plugins enable accept
+ rabbitmq-plugins enable prometheus
+ rabbitmq-plugins enable prometheus_httpd
+ prometheus_rabbitmq_exporter
+```
+
+If you are running on linux you may find `prometheus_process_exporter` useful.
+
+```
+rabbitmq-plugins enable prometheus_process_collector
+```
 
 
- #### Latest Docker:
- `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus:3.6.8.1`
+### Troubleshooting
+
+#### `undef` error
+
+If you see something like this:
+
+```
+{could_not_start,rabbitmq_management,
+       {undef,
+           [{prometheus_http,setup,[],[]}
+```
+
+I.e. `undef` error mentioning a module starting with `prometheus_` chances you forgot to enable a plugin (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/27 for example).
+
+#### Module `prometheus_process_collector` is unloadable
+
+```
+{plugin_module_unloadable,"prometheus_process_collector",
+                             {error,on_load_failure}}
+```
+
+Prometheus process collector uses NIFs underneath and failed to load shared object in module on_load callback.
+Please check that `RABBITMQ_PLUGINS_EXPAND_DIR` doesn't have `noexec` flag set (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/26).
+
+#### Glibc-related errors when `prometheus_process_collector` enabled
+
+`prometheus_process_collector` plugin comes with prebuilt shared object. And it looks like my Glibc version differs from yours.
+You can rebuild the plugin yourself very easily - clone `https://github.com/deadtrickster/prometheus_process_collector` and run `rebar3 archive`
+
+### Latest Docker:
+ `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus`
 
 ## Configuration
 
