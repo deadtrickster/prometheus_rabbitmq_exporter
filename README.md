@@ -10,6 +10,7 @@ Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster
 ## TOC
  - [Versioning](#versioning)
  - [Installation](#installation)
+   - [Troubleshooting](#troubleshooting)
  - [Configuration](#configuration)
  - [Metrics](#metrics)
    - [RabbitMQ specific metrics](#rabbitmq-specific-metrics)
@@ -76,6 +77,11 @@ I.e. `undef` error mentioning a module starting with `prometheus_` chances you f
 
 Prometheus process collector uses NIFs underneath and failed to load shared object in module on_load callback.
 Please check that `RABBITMQ_PLUGINS_EXPAND_DIR` doesn't have `noexec` flag set (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/26).
+
+#### Crashes with something like {error,{bad_lib,"Library version (2.11) not compatible (with 2.10)."}}
+
+This means [erl_nif](http://erlang.org/doc/man/erl_nif.html) version `prometheus_process_collector` built with differs from yours (see Version Management section).
+You can rebuild the plugin yourself very easily - clone `https://github.com/deadtrickster/prometheus_process_collector` and run `rebar3 archive`
 
 #### Glibc-related errors when `prometheus_process_collector` enabled
 
