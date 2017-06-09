@@ -81,12 +81,12 @@ Please check that `RABBITMQ_PLUGINS_EXPAND_DIR` doesn't have `noexec` flag set (
 #### Crashes with something like {error,{bad_lib,"Library version (2.11) not compatible (with 2.10)."}}
 
 This means [erl_nif](http://erlang.org/doc/man/erl_nif.html) version `prometheus_process_collector` built with differs from yours (see Version Management section).
-You can rebuild the plugin yourself very easily - `clone https://github.com/deadtrickster/prometheus_process_collector` and run `rebar3 archive`
+You can rebuild the plugin yourself very easily - `clone https://github.com/deadtrickster/prometheus_process_collector.git` and run `rebar3 archive`
 
 #### Glibc-related errors when `prometheus_process_collector` enabled
 
 `prometheus_process_collector` plugin comes with prebuilt shared object. And it looks like my Glibc version differs from yours.
-You can rebuild the plugin yourself very easily - `clone https://github.com/deadtrickster/prometheus_process_collector` and run `rebar3 archive`
+You can rebuild the plugin yourself very easily - `clone https://github.com/deadtrickster/prometheus_process_collector.git` and run `rebar3 archive`
 
 ### Latest Docker:
  `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus`
