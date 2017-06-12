@@ -66,7 +66,7 @@ If you see something like this:
            [{prometheus_http,setup,[],[]}
 ```
 
-I.e. `undef` error mentioning a module starting with `prometheus_` chances you forgot to enable a plugin (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/27 for example).
+I.e. `undef` error mentioning a module starting with `prometheus_`, chances you forgot to enable a plugin (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/27 for example).
 
 #### Module `prometheus_process_collector` is unloadable
 
