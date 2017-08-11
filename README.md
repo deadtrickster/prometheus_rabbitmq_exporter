@@ -106,8 +106,7 @@ Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path
  {rabbit, [
    {loopback_users, []},
    {tcp_listeners, [5672]},
-   {ssl_listeners, []},
-   {hipe_compile, false}
+   {ssl_listeners, []}
  ]},
  %% Be careful to declare the "prometheus" app
  %% environment before the "rabbitmq_management" one.
