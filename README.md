@@ -75,6 +75,12 @@ I.e. `undef` error mentioning a module starting with `prometheus_`, chances you 
                              {error,on_load_failure}}
 ```
 
+or
+
+```
+{error,{load_failed,"Failed to load NIF library: '/<...>/plugins/prometheus_process_collector-1.1.0/priv/prometheus_process_collector.so: failed to map segment from shared object'"}}
+```
+
 Prometheus process collector uses NIFs underneath and failed to load shared object in module on_load callback.
 Please check that `RABBITMQ_PLUGINS_EXPAND_DIR` doesn't have `noexec` flag set (see https://github.com/deadtrickster/prometheus_rabbitmq_exporter/issues/26).
 
