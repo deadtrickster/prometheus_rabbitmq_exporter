@@ -78,7 +78,9 @@ I.e. `undef` error mentioning a module starting with `prometheus_`, chances you 
 or
 
 ```
-{error,{load_failed,"Failed to load NIF library: '/<...>/plugins/prometheus_process_collector-1.1.0/priv/prometheus_process_collector.so: failed to map segment from shared object'"}}
+{error,{load_failed,"Failed to load NIF library:
+ '/<...>/plugins/prometheus_process_collector-1.1.0/priv/prometheus_process_collector.so:
+ failed to map segment from shared object'"}}
 ```
 
 Prometheus process collector uses NIFs underneath and failed to load shared object in module on_load callback.
