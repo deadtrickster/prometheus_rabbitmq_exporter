@@ -1,4 +1,4 @@
-FROM rabbitmq:3.6.10
+FROM rabbitmq:3.6.11
 MAINTAINER  Ilya Khaprov <i.khaprov@gmail.com>
 
 # rabbitmq-management
