@@ -132,7 +132,7 @@ Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path
 ].
 ```
 
-For the latest list of suported options look [here](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/blob/master/src/prometheus_rabbitmq_exporter_config.erl).
+For the latest list of supported options look [here](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/blob/master/src/prometheus_rabbitmq_exporter_config.erl).
 
 ## Metrics
 
