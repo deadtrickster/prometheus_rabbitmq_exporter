@@ -1,5 +1,7 @@
 -module(prometheus_rabbitmq_exporter_handler).
 
+-include_lib("prometheus_httpd/include/prometheus_http.hrl").
+
 -export([init/3,
          handle/2,
          terminate/3]).
@@ -16,10 +18,10 @@ handle(Req, {Registry}) ->
               end,
 
   %% TODO: check method, response only to GET
-  {Code, RespHeaders0, Body} = prometheus_http:reply(#{path => URI,
-                                                       headers => GetHeader,
-                                                       registry => Registry,
-                                                       standalone => false}),
+  {Code, RespHeaders0, Body} = prometheus_http_impl:reply(#request{path = URI,
+                                                              headers = GetHeader,
+                                                              registry = Registry,
+                                                              standalone = false}),
 
   ContentLength = integer_to_list(iolist_size(Body)),
   RespHeaders = lists:map(fun to_cowboy_headers/1,
