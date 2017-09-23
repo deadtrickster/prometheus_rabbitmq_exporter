@@ -1,9 +1,9 @@
 PROJECT = prometheus_rabbitmq_exporter
 PROJECT_DESCRIPTION = Prometheus.io exporter as a RabbitMQ Managment Plugin plugin
 
-DEPS = rabbitmq_management prometheus prometheus_httpd accept #prometheus_process_collector
+DEPS = rabbitmq_management prometheus prometheus_httpd accept prometheus_process_collector
 dep_prometheus = git https://github.com/deadtrickster/prometheus.erl 3.x-pre18
-#dep_prometheus_process_collector = git https://github.com/deadtrickster/prometheus_process_collector
+dep_prometheus_process_collector = git https://github.com/deadtrickster/prometheus_process_collector
 dep_prometheus_httpd = git https://github.com/deadtrickster/prometheus-httpd
 dep_accept = git https://github.com/deadtrickster/accept
 
