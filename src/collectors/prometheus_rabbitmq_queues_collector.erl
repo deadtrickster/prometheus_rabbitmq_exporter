@@ -21,8 +21,6 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_queue_").
 
--define(METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
-
 -define(METRICS, [{durable, boolean, "Whether or not the queue survives server restarts."},
                   {auto_delete, boolean, "Whether the queue will be deleted automatically when no longer used."},
                   {exclusive, boolean, "True if queue is exclusive (i.e. has owner_pid), false otherwise."},

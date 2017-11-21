@@ -19,7 +19,7 @@
 -behaviour(prometheus_collector).
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_").
--define(METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
+
 -define(MESSAGE_STAT, [{queues_disk_reads, counter, "Total number of times messages have been read from disk by all queues.",
                         fun (Stat) ->
                             proplists:get_value(disk_reads, Stat)

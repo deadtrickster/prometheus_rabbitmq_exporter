@@ -19,8 +19,6 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_exchange_").
 
--define(EXCHANGE_METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
-
 -define(EXCHANGE_GAUGES, []).
 
 -define(EXCHANGE_COUNTERS, []).
@@ -39,8 +37,8 @@ deregister_cleanup(_) -> ok.
 
 collect_mf(_Registry, Callback) ->
   AllQueues = lists:merge([[Exchange || Exchange <- list_exchanges(VHost)] || [{name, VHost}] <- rabbit_vhost:info_all([name])]),
-  [Callback(create_gauge(?EXCHANGE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_GAUGES],
-  [Callback(create_counter(?EXCHANGE_METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_COUNTERS],
+  [Callback(create_gauge(?METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_GAUGES],
+  [Callback(create_counter(?METRIC_NAME(QueueKey), Help, {QueueKey, AllQueues})) || {QueueKey, Help} <- ?EXCHANGE_COUNTERS],
 
   case prometheus_rabbitmq_exporter_config:exchange_messages_stat() of
     [] ->
@@ -65,7 +63,7 @@ labels(Exchange) ->
    {type, exchange_type(Exchange)}].
 
 collect_messages_stat(Callback, AllQueues, MessagesStat) ->
-  [Callback(create_counter(?EXCHANGE_METRIC_NAME(MetricName), Help, {messages_stat, MSKey, AllQueues}))
+  [Callback(create_counter(?METRIC_NAME(MetricName), Help, {messages_stat, MSKey, AllQueues}))
    || {MSKey, MetricName, Help} <- prometheus_rabbitmq_message_stats:metrics(), lists:member(MetricName, MessagesStat)].
 
 %% emit_counter_metric_if_defined(Exchange, Value) ->
