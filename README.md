@@ -48,12 +48,13 @@ Download suitable version and follow regular [RabbitMQ plugin installation instr
  rabbitmq-plugins enable prometheus_rabbitmq_exporter
 ```
 
-If you are running on Linux or FreeBSD, you may find `prometheus_process_exporter` useful.
+If you are running on Linux or FreeBSD, you may find `prometheus_process_exporter` useful:
 
 ```
 rabbitmq-plugins enable prometheus_process_collector
 ```
 
+[Prometheus process collector](https://github.com/deadtrickster/prometheus_process_collector).
 
 ### Troubleshooting
 
