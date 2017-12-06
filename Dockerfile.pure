@@ -1,4 +1,4 @@
-FROM rabbitmq:3.6.12-management
+FROM rabbitmq:3.6.14-management
 MAINTAINER  Ilya Khaprov <i.khaprov@gmail.com>
 
 # prometheus exporter plugin
