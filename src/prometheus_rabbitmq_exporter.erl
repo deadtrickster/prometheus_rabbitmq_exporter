@@ -12,9 +12,9 @@ dispatcher() ->
   prometheus_registry:register_collector(prometheus_rabbitmq_overview_collector),
   prometheus_registry:register_collector(prometheus_rabbitmq_queues_collector),
   Path = prometheus_rabbitmq_exporter_config:path(),
-  Registry = default,
 
   prometheus_http_impl:setup(),
 
-  [{Path, prometheus_rabbitmq_exporter_handler, {Registry}}].
+  [{Path ++ "/[:registry]", prometheus_cowboy2_handler, []}].
+
 web_ui()     -> [].
