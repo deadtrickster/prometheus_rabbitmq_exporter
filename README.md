@@ -44,6 +44,7 @@ Download suitable version and follow regular [RabbitMQ plugin installation instr
 ```
  rabbitmq-plugins enable accept
  rabbitmq-plugins enable prometheus
+ rabbitmq-plugins enable prometheus_cowboy
  rabbitmq-plugins enable prometheus_httpd
  rabbitmq-plugins enable prometheus_rabbitmq_exporter
 ```
