@@ -5,7 +5,8 @@
          collect_mf/2,
          collect_metrics/2]).
 
--import(prometheus_model_helpers, [create_mf/5,
+-import(prometheus_model_helpers, [create_mf/4,
+                                   create_mf/5,
                                    label_pairs/1,
                                    gauge_metrics/1,
                                    gauge_metric/1,
@@ -37,6 +38,57 @@
                        {messages_unacknowledged, gauge,
                         "Delivered but unacknowledged messages"}]).
 
+-define(MEMORY_METRICS, [
+                         %% Connections
+                         {connection_readers,
+                          "Processes responsible for connection parser "
+                          "and most of connection state. Most of their "
+                          "memory attributes to TCP buffers."},
+                         {connection_writers,
+                          "Processes responsible for serialization of "
+                          "outgoing protocol frames and writing to "
+                          "client connections sockets."},
+                         {connection_channels,
+                          "The more channels client connections use, "
+                          "the more memory with be used by this category."},
+                         {connection_other,
+                          "Other memory related to client connections."},
+
+                         %% Queues
+                         {queue_procs,
+                          "Queue masters, indices and messages kept in memory."},
+                         {queue_slave_procs,
+                          "Queue mirrors, indices and messages kept in memory."},
+
+                         %% Processes
+                         {plugins,
+                          "Plugins such as Shovel, Federation, or protocol "
+                          "implementations such as STOMP can accumulate "
+                          "messages in memory."},
+                         {other_proc,
+                          "Queue masters, indices and messages kept in memory."},
+
+                         %% Metrics
+                         {metrics,
+                          "Node-local metrics."},
+                         {mgmt_db,
+                          "Management DB ETS tables + processes."},
+
+                         %% ETS
+                         {mnesia,
+                          "Virtual hosts, users, permissions, queue metadata "
+                          "and state, exchanges, bindings, runtime parameters "
+                          "and so on."},
+                         {other_ets,
+                          "Some plugins can  use ETS tables to store their state."},
+
+                         %% Messages (mostly, some binaries are not messages)
+                         {binary,
+                          "Runtime binary heap. Most of this section is usually "
+                          "message bodies and properties (metadata)."},
+                         {msg_index,
+                          "Message index ETS + processes."}
+                        ]).
 
 %%====================================================================
 %% Collector API
@@ -55,16 +107,31 @@ collect_mf(_Registry, Callback) ->
   MessageStat = proplists:get_value(message_stats, Overview),
   ObjectTotals = proplists:get_value(object_totals, Overview),
   QueueTotals = proplists:get_value(queue_totals, Overview),
+  _Mem = rabbit_vm:memory(),
   collect_messages_stat(Callback, MessageStat),
   [mf(Callback, Metric, MessageStat) || Metric <- ?MESSAGE_STAT],
   [mf(Callback, Metric, ObjectTotals) || Metric <- ?OBJECT_TOTALS],
   [mf(Callback, Metric, QueueTotals) || Metric <- ?QUEUE_TOTALS],
+  case prometheus_rabbitmq_exporter_config:memory_stat_enabled() of
+    true ->
+      collect_rabbit_memory(Callback);
+    _ ->
+      ok
+  end,
   ok.
 
 collect_metrics(_, {messages_stat, MSKey, Stats}) ->
   counter_metric([], proplists:get_value(MSKey, Stats));
 collect_metrics(_, {Type, Fun, Stats}) ->
   metric(Type, [], Fun(Stats)).
+
+collect_rabbit_memory(Callback) ->
+  Memory = rabbit_vm:memory(),
+  [begin
+     FullName = ?METRIC_NAME(["memory_", Name, "_bytes"]),
+     Value = proplists:get_value(Name, Memory, undefined),
+     Callback(create_mf(FullName, Help, gauge, Value))
+   end || {Name, Help} <- ?MEMORY_METRICS].
 
 mf(Callback, Metric, Proplist) ->
   {Name, Type, Help, Fun} = case Metric of
