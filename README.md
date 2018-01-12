@@ -1,7 +1,7 @@
 # RabbitMQ Prometheus.io exporter
 
 Implemented as RabbitMQ Management Plugin plugin.
-Also exports Erlang VM amd process metrics (~ 100 metrics in total).
+Also exports Erlang VM and process metrics (~ 100 metrics in total).
 
 Implemented using [Erlang Prometheus.io client](https://github.com/deadtrickster/prometheus.erl)
 
