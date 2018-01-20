@@ -109,9 +109,10 @@ This exporter supports the following options via `rabbitmq_exporter` entry of `p
  - `path` - scrape endpoint. Default is `"metrics"`. Note RabbitMQ translates this to `"/api/metrics"`;
  - `format` - scrape format. Default is `prometheus_text_format`;
  - `exchange_messages_stat` - same as `queue_messages_state` but for the exchanges;
- - `queue_messages_stat` - messages state to export. Default is hopefully reasonable. You can read more about possible values [here](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_5/priv/www/doc/stats.html).
+ - `queue_messages_stat` - messages state to export. Default is hopefully reasonable. You can read more about possible values [here](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_5/priv/www/doc/stats.html);
+ - `connections_total_enabled` - Default is `false`. If `true`, the exporter will iterate over all connections and export count grouped by connection state (running, flow, etc).
 
-Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path`:
+Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path`, and `connections_total_enabled`:
 
 ```erlang
 [
@@ -124,7 +125,8 @@ Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path
  %% environment before the "rabbitmq_management" one.
  {prometheus, [
    {rabbitmq_exporter, [
-     {path, "/mymetrics"}
+     {path, "/mymetrics"},
+     {connections_total_enabled, true}
    ]}
  ]},
  {rabbitmq_management, [
@@ -147,6 +149,11 @@ For the latest list of supported options look [here](https://github.com/deadtric
 * `rabbitmq_connections`<br />
 Type: gauge.<br />
 RabbitMQ Connections count.
+
+* `rabbitmq_connections_total` (disabled by default)<br />
+Type: gauge.<br />
+Labels: state.<br />
+RabbitMQ connections count grouped by connection state.
 
 * `rabbitmq_channels`<br />
 Type: gauge.<br />

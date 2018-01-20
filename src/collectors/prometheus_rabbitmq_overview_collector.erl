@@ -118,6 +118,12 @@ collect_mf(_Registry, Callback) ->
     _ ->
       ok
   end,
+  case prometheus_rabbitmq_exporter_config:connections_total_enabled() of
+    true ->
+      collect_rabbit_connections(Callback);
+    _ ->
+      ok
+  end,
   ok.
 
 collect_metrics(_, {messages_stat, MSKey, Stats}) ->
@@ -132,6 +138,32 @@ collect_rabbit_memory(Callback) ->
      Value = proplists:get_value(Name, Memory, undefined),
      Callback(create_mf(FullName, Help, gauge, Value))
    end || {Name, Help} <- ?MEMORY_METRICS].
+
+collect_rabbit_connections(Callback) ->
+  Table = ets:new('$$connectinos_stat$$', [set]),
+  try
+    Connections = ets:select(connection_stats, [{{'$1', '$2'}, [], ['$2']}], 10),
+    connections_loop(Connections, Table),
+    Callback(create_mf(?METRIC_NAME(connections_total), "RabbitMQ connections count grouped by connection state.",
+                       gauge, ets:tab2list(Table)))
+  after
+    ets:delete(Table)
+  end,
+  ok.
+
+connections_loop('$end_of_table', _Table) ->
+  ok;
+connections_loop({Connections, Continuation}, Table) ->
+  [begin
+     Labels = [{state, proplists:get_value(state, Connection)}],
+     try
+       ets:update_counter(Table, Labels, 1)
+     catch error:badarg ->
+         ets:insert(Table, {Labels, 1})
+     end
+   end
+   || Connection <- Connections],
+  connections_loop(ets:select(Continuation), Table).
 
 mf(Callback, Metric, Proplist) ->
   {Name, Type, Help, Fun} = case Metric of

@@ -22,15 +22,15 @@ ERLANG_MK_COMMIT = rabbitmq-tmp
 .PHONY: docker_build docker_push docker_latest docker_latest_pure
 
 docker_build:
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.1 .
+	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.2 .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest .
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.1-pure -f Dockerfile.pure  .
+	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.2-pure -f Dockerfile.pure  .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest-pure -f Dockerfile.pure  .
 
 docker_push:
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.1
+	docker push deadtrickster/rabbitmq_prometheus\:3.7.2
 	docker push deadtrickster/rabbitmq_prometheus\:latest
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.1-pure
+	docker push deadtrickster/rabbitmq_prometheus\:3.7.2-pure
 	docker push deadtrickster/rabbitmq_prometheus\:latest-pure
 
 docker_latest:
