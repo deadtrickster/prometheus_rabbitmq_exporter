@@ -35,8 +35,8 @@ Plugin version should be read as follows: 3.7.1.x - where 3.7.1 is required Rabb
 
 ## Installation
 
- - [Release for RabbitMQ 3.7.0](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/v3.7.0.1)
- - [Release for latest RabbitMQ 3.6.x versions](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.14.1);
+ - [Release for latest RabbitMQ 3.7.x](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/v3.7.2.1)
+ - [Release for latest RabbitMQ 3.6.x](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.14.1);
  - [Release for RabbitMQ 3.6.8 and 3.6.9](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.9.1);
  - [Release for RabbitMQ 3.6.5](https://github.com/deadtrickster/prometheus_rabbitmq_exporter/releases/tag/rabbitmq-3.6.5.9).
 
