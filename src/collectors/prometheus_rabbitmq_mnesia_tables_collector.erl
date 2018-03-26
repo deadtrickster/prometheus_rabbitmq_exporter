@@ -41,8 +41,6 @@
 
 -define(METRIC_NAME_PREFIX, "rabbitmq_mnesia_table_").
 
--define(METRIC_NAME(S), ?METRIC_NAME_PREFIX ++ atom_to_list(S)).
-
 %% metric {Key, Type, Help, &optional Fun}
 -define(METRICS, [{read_only, untyped, "Access mode of the table, 1 if table is read_only or 0 otherwise.",
                    fun(_T, Info) ->
