@@ -140,7 +140,8 @@ collect_metrics(_, {Type, Fun, Stats}) ->
 
 collect_rabbit_memory(Callback) ->
   %% We flatten in order to have the totals under the same list.
-  Memory = lists:flatten(rabbit_vm:memory()),
+  Memory0 = rabbit_vm:memory(),
+  Memory = proplists:get_value(total, Memory0, []) ++ Memory0,
   [begin
      FullName = ?METRIC_NAME(["memory_", Name, "_bytes"]),
      Value = proplists:get_value(Name, Memory, undefined),
