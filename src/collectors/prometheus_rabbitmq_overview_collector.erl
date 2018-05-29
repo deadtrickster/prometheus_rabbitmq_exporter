@@ -107,7 +107,6 @@ collect_mf(_Registry, Callback) ->
   MessageStat = proplists:get_value(message_stats, Overview),
   ObjectTotals = proplists:get_value(object_totals, Overview),
   QueueTotals = proplists:get_value(queue_totals, Overview),
-  _Mem = rabbit_vm:memory(),
   collect_messages_stat(Callback, MessageStat),
   [mf(Callback, Metric, MessageStat) || Metric <- ?MESSAGE_STAT],
   [mf(Callback, Metric, ObjectTotals) || Metric <- ?OBJECT_TOTALS],
