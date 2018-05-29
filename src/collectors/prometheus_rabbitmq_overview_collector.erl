@@ -87,7 +87,15 @@
                           "Runtime binary heap. Most of this section is usually "
                           "message bodies and properties (metadata)."},
                          {msg_index,
-                          "Message index ETS + processes."}
+                          "Message index ETS + processes."},
+
+                         %% Totals
+                         {erlang,
+                          "Runtime Used"},
+                         {allocated,
+                          "Runtime Allocated"},
+                         {rss,
+                          "Resident Set Size (RSS) reported by the OS"}
                         ]).
 
 %%====================================================================
@@ -107,7 +115,6 @@ collect_mf(_Registry, Callback) ->
   MessageStat = proplists:get_value(message_stats, Overview),
   ObjectTotals = proplists:get_value(object_totals, Overview),
   QueueTotals = proplists:get_value(queue_totals, Overview),
-  _Mem = rabbit_vm:memory(),
   collect_messages_stat(Callback, MessageStat),
   [mf(Callback, Metric, MessageStat) || Metric <- ?MESSAGE_STAT],
   [mf(Callback, Metric, ObjectTotals) || Metric <- ?OBJECT_TOTALS],
@@ -132,7 +139,9 @@ collect_metrics(_, {Type, Fun, Stats}) ->
   metric(Type, [], Fun(Stats)).
 
 collect_rabbit_memory(Callback) ->
-  Memory = rabbit_vm:memory(),
+  %% We flatten in order to have the totals under the same list.
+  Memory0 = rabbit_vm:memory(),
+  Memory = proplists:get_value(total, Memory0, []) ++ Memory0,
   [begin
      FullName = ?METRIC_NAME(["memory_", Name, "_bytes"]),
      Value = proplists:get_value(Name, Memory, undefined),
