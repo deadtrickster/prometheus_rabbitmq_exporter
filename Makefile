@@ -4,7 +4,7 @@ PROJECT_DESCRIPTION = Prometheus.io exporter as a RabbitMQ Managment Plugin plug
 
 DEPS = rabbitmq_management prometheus prometheus_httpd accept \
 	prometheus_process_collector prometheus_cowboy
-dep_prometheus = hex 3.4.5
+dep_prometheus = hex 3.5.1
 dep_prometheus_process_collector = hex 1.3.1
 dep_prometheus_httpd = hex 2.1.8
 dep_accept = hex 0.3.3
