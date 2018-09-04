@@ -43,10 +43,6 @@ Plugin version should be read as follows: 3.7.1.x - where 3.7.1 is required Rabb
 Download suitable version and follow regular [RabbitMQ plugin installation instructions](http://www.rabbitmq.com/installing-plugins.html).
 
 ```
- rabbitmq-plugins enable accept
- rabbitmq-plugins enable prometheus
- rabbitmq-plugins enable prometheus_cowboy
- rabbitmq-plugins enable prometheus_httpd
  rabbitmq-plugins enable prometheus_rabbitmq_exporter
 ```
 
