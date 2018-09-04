@@ -117,8 +117,6 @@ Sample `/etc/rabbitmq/rabbitmq.config` showing how to customize the scrape `path
    {tcp_listeners, [5672]},
    {ssl_listeners, []}
  ]},
- %% Be careful to declare the "prometheus" app
- %% environment before the "rabbitmq_management" one.
  {prometheus, [
    {rabbitmq_exporter, [
      {path, "/mymetrics"},
