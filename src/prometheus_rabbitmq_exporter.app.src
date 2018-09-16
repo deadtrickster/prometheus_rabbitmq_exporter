@@ -8,7 +8,9 @@
                   stdlib,
                   rabbit,
                   rabbitmq_management,
-                  prometheus]},
+                  prometheus,
+                  prometheus_cowboy,
+                  prometheus_httpd]},
 
   {maintainers, ["Ilya Khaprov"]},
   {licenses, ["MIT"]},
