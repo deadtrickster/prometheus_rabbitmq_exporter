@@ -11,7 +11,7 @@ dispatcher() ->
 
   prometheus_http_impl:setup(),
 
-  [{Path ++ "/[:registry]", prometheus_cowboy2_handler, []}].
+  [{Path ++ "/[:registry]", prometheus_rabbitmq_exporter_handler, []}].
 
 web_ui()     -> [].
 

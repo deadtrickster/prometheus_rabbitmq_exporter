@@ -1,12 +1,14 @@
 -module(prometheus_rabbitmq_exporter_config).
 
 -export([path/0,
+         use_mgmt_auth/0,
          queue_messages_stat/0,
          exchange_messages_stat/0,
          memory_stat_enabled/0,
          connections_total_enabled/0]).
 
 -define(DEFAULT_PATH, "/metrics").
+-define(DEFAULT_USE_MGMT_AUTH, false).
 -define(DEFAULT_QUEUE_MESSAGES_STAT, [messages_published_total,
                                       messages_confirmed_total,
                                       messages_delivered_total,
@@ -36,6 +38,10 @@ config() ->
 path() ->
   Config = config(),
   proplists:get_value(path, Config, ?DEFAULT_PATH).
+
+use_mgmt_auth() ->
+  Config = config(),
+  proplists:get_value(use_mgmt_auth, Config, ?DEFAULT_USE_MGMT_AUTH).
 
 queue_messages_stat() ->
   Config = config(),
