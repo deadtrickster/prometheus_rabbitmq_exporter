@@ -103,6 +103,7 @@ You can rebuild the plugin yourself very easily - `clone https://github.com/dead
 
 This exporter supports the following options via `rabbitmq_exporter` entry of `prometheus` app env:
  - `path` - scrape endpoint. Default is `"metrics"`. Note RabbitMQ translates this to `"/api/metrics"`;
+ - `use_mgmt_auth` - use built-in management auth. Default is `false`. If true, relies on management plugin for authentication (that guest:guest on fresh setups);
  - `format` - scrape format. Default is `prometheus_text_format`;
  - `exchange_messages_stat` - same as `queue_messages_state` but for the exchanges;
  - `queue_messages_stat` - messages state to export. Default is hopefully reasonable. You can read more about possible values [here](https://raw.githack.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_5/priv/www/doc/stats.html);
