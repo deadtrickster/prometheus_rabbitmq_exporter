@@ -1,9 +1,4 @@
 PROJECT = prometheus_rabbitmq_exporter
-PROJECT_DESCRIPTION = Prometheus.io exporter as a RabbitMQ Managment Plugin plugin
-
-define PROJECT_APP_EXTRA_KEYS
-	{broker_version_requirements, []}
-endef
 
 dep_prometheus = hex 3.5.1
 dep_prometheus_process_collector = hex 1.3.1
