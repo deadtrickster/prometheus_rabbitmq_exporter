@@ -18,7 +18,7 @@ ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 export ERLANG_MK_FILENAME
 
 ERLANG_MK_VERSION = 2.0.0-pre.2-311-gb20df2d
-ERLANG_MK_WITHOUT = 
+ERLANG_MK_WITHOUT = plugins/proper
 
 # Make 3.81 and 3.82 are deprecated.
 
@@ -4876,6 +4876,37 @@ ERLANG_MK_RECURSIVE_REL_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-rel-deps-list.log
 ERLANG_MK_RECURSIVE_TEST_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-test-deps-list.log
 ERLANG_MK_RECURSIVE_SHELL_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-shell-deps-list.log
 
+# Copyright (c) 2015-2016, Loïc Hoguin <essen@ninenines.eu>
+# This file is part of erlang.mk and subject to the terms of the ISC License.
+
+# Verbosity.
+
+proto_verbose_0 = @echo " PROTO " $(filter %.proto,$(?F));
+proto_verbose = $(proto_verbose_$(V))
+
+# Core targets.
+
+define compile_proto
+	$(verbose) mkdir -p ebin/ include/
+	$(proto_verbose) $(call erlang,$(call compile_proto.erl,$(1)))
+	$(proto_verbose) erlc +debug_info -o ebin/ ebin/*.erl
+	$(verbose) rm ebin/*.erl
+endef
+
+define compile_proto.erl
+	[begin
+		protobuffs_compile:generate_source(F,
+			[{output_include_dir, "./include"},
+				{output_src_dir, "./ebin"}])
+	end || F <- string:tokens("$(1)", " ")],
+	halt().
+endef
+
+ifneq ($(wildcard src/),)
+ebin/$(PROJECT).app:: $(sort $(call core_find,src/,*.proto))
+	$(if $(strip $?),$(call compile_proto,$?))
+endif
+
 # Copyright (c) 2013-2016, Loïc Hoguin <essen@ninenines.eu>
 # This file is part of erlang.mk and subject to the terms of the ISC License.
 
@@ -6502,60 +6533,6 @@ apps-eunit:
 	$(verbose) eunit_retcode=0 ; for app in $(ALL_APPS_DIRS); do $(MAKE) -C $$app eunit IS_APP=1; \
 		[ $$? -ne 0 ] && eunit_retcode=1 ; done ; \
 		exit $$eunit_retcode
-endif
-endif
-
-# Copyright (c) 2015-2017, Loïc Hoguin <essen@ninenines.eu>
-# This file is part of erlang.mk and subject to the terms of the ISC License.
-
-ifeq ($(filter proper,$(DEPS) $(TEST_DEPS)),proper)
-.PHONY: proper
-
-# Targets.
-
-tests:: proper
-
-define proper_check.erl
-	code:add_pathsa(["$(call core_native_path,$(CURDIR)/ebin)", "$(call core_native_path,$(DEPS_DIR)/*/ebin)"]),
-	Module = fun(M) ->
-		[true] =:= lists:usort([
-			case atom_to_list(F) of
-				"prop_" ++ _ ->
-					io:format("Testing ~p:~p/0~n", [M, F]),
-					proper:quickcheck(M:F(), nocolors);
-				_ ->
-					true
-			end
-		|| {F, 0} <- M:module_info(exports)])
-	end,
-	try
-		case $(1) of
-			all -> [true] =:= lists:usort([Module(M) || M <- [$(call comma_list,$(3))]]);
-			module -> Module($(2));
-			function -> proper:quickcheck($(2), nocolors)
-		end
-	of
-		true -> halt(0);
-		_ -> halt(1)
-	catch error:undef ->
-		io:format("Undefined property or module?~n~p~n", [erlang:get_stacktrace()]),
-		halt(0)
-	end.
-endef
-
-ifdef t
-ifeq (,$(findstring :,$(t)))
-proper: test-build
-	$(verbose) $(call erlang,$(call proper_check.erl,module,$(t)))
-else
-proper: test-build
-	$(verbose) echo Testing $(t)/0
-	$(verbose) $(call erlang,$(call proper_check.erl,function,$(t)()))
-endif
-else
-proper: test-build
-	$(eval MODULES := $(patsubst %,'%',$(sort $(notdir $(basename $(wildcard ebin/*.beam))))))
-	$(gen_verbose) $(call erlang,$(call proper_check.erl,all,undefined,$(MODULES)))
 endif
 endif
 
