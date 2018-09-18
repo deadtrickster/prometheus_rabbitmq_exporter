@@ -30,4 +30,5 @@ is_authorized(ReqData, Context) ->
 %% ===================================================================
 
 generate_response(ReqData, Context) ->
-  prometheus_cowboy2_handler:init(ReqData, Context).
+  {ok, Response, undefined} = prometheus_cowboy2_handler:init(ReqData, Context),
+  {stop, Response, Context}.
