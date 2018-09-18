@@ -3098,14 +3098,6 @@ pkg_props_fetch = git
 pkg_props_repo = https://github.com/greyarea/props
 pkg_props_commit = master
 
-PACKAGES += protobuffs
-pkg_protobuffs_name = protobuffs
-pkg_protobuffs_description = An implementation of Google's Protocol Buffers for Erlang, based on ngerakines/erlang_protobuffs.
-pkg_protobuffs_homepage = https://github.com/basho/erlang_protobuffs
-pkg_protobuffs_fetch = git
-pkg_protobuffs_repo = https://github.com/basho/erlang_protobuffs
-pkg_protobuffs_commit = master
-
 PACKAGES += psycho
 pkg_psycho_name = psycho
 pkg_psycho_description = HTTP server that provides a WSGI-like interface for applications and middleware.
@@ -4875,37 +4867,6 @@ ERLANG_MK_RECURSIVE_DOC_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-doc-deps-list.log
 ERLANG_MK_RECURSIVE_REL_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-rel-deps-list.log
 ERLANG_MK_RECURSIVE_TEST_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-test-deps-list.log
 ERLANG_MK_RECURSIVE_SHELL_DEPS_LIST = $(ERLANG_MK_TMP)/recursive-shell-deps-list.log
-
-# Copyright (c) 2015-2016, Loïc Hoguin <essen@ninenines.eu>
-# This file is part of erlang.mk and subject to the terms of the ISC License.
-
-# Verbosity.
-
-proto_verbose_0 = @echo " PROTO " $(filter %.proto,$(?F));
-proto_verbose = $(proto_verbose_$(V))
-
-# Core targets.
-
-define compile_proto
-	$(verbose) mkdir -p ebin/ include/
-	$(proto_verbose) $(call erlang,$(call compile_proto.erl,$(1)))
-	$(proto_verbose) erlc +debug_info -o ebin/ ebin/*.erl
-	$(verbose) rm ebin/*.erl
-endef
-
-define compile_proto.erl
-	[begin
-		protobuffs_compile:generate_source(F,
-			[{output_include_dir, "./include"},
-				{output_src_dir, "./ebin"}])
-	end || F <- string:tokens("$(1)", " ")],
-	halt().
-endef
-
-ifneq ($(wildcard src/),)
-ebin/$(PROJECT).app:: $(sort $(call core_find,src/,*.proto))
-	$(if $(strip $?),$(call compile_proto,$?))
-endif
 
 # Copyright (c) 2013-2016, Loïc Hoguin <essen@ninenines.eu>
 # This file is part of erlang.mk and subject to the terms of the ISC License.
