@@ -5,7 +5,8 @@
          queue_messages_stat/0,
          exchange_messages_stat/0,
          memory_stat_enabled/0,
-         connections_total_enabled/0]).
+         connections_total_enabled/0,
+         detailed_node_stat_enabled/0]).
 
 -define(DEFAULT_PATH, "/metrics").
 -define(DEFAULT_USE_MGMT_AUTH, false).
@@ -31,6 +32,7 @@
                                          messages_returned_total]).
 -define(DEFAULT_MEMORY_STAT_ENABLED, false).
 -define(DEFAULT_CONNECTIONS_TOTAL_ENABLED, false).
+-define(DEFAULT_DETAILED_NODE_STAT_ENABLED, none).
 
 config() ->
   application:get_env(prometheus, rabbitmq_exporter, []).
@@ -59,3 +61,6 @@ connections_total_enabled() ->
   Config = config(),
   proplists:get_value(connections_total_enabled, Config, ?DEFAULT_CONNECTIONS_TOTAL_ENABLED).
 
+detailed_node_stat_enabled() ->
+    Config = config(),
+    proplists:get_value(detailed_node_stat_enabled, Config, ?DEFAULT_DETAILED_NODE_STAT_ENABLED).
