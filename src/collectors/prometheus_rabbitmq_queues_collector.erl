@@ -122,8 +122,26 @@ metric(boolean, Labels, Value0) ->
 %%====================================================================
 
 labels(Queue) ->
-  [{vhost, queue_vhost(Queue)},
-   {queue, queue_name(Queue)}].
+    %% exclusive_consumer_tag should not be used as a label. Prometheus documentation
+    %% states that labels should not be used to store dimensions with high cardinality,
+    %% as every unique combination of key-value label pairs represents a new time
+    %% series, which can dramatically increase the amount of data stored.
+    %% As such, from the arguments only x-overflow, x-queue-mode and x-queue-type
+    %% should be represented as arguments.
+    add_if_not_empty(
+      {queue_mode, queue_argument(<<"x-queue-mode">>, Queue)},
+      add_if_not_empty(
+        {type, queue_argument(<<"x-queue-type">>, Queue, <<"classic">>)},
+        add_if_not_empty(
+          {overflow, queue_argument(<<"x-overflow">>, Queue)},
+          add_if_not_empty({policy, queue_policy(Queue)},
+                           [{vhost, queue_vhost(Queue)},
+                            {queue, queue_name(Queue)}])))).
+
+add_if_not_empty({_, ''}, Acc) ->
+    Acc;
+add_if_not_empty(Tuple, Acc) ->
+    [Tuple | Acc].
 
 catch_boolean(boolean) ->
     untyped;
@@ -157,6 +175,15 @@ queue_vhost(Queue) ->
 
 queue_name(Queue) ->
   proplists:get_value(name, Queue).
+
+queue_policy(Queue) ->
+    proplists:get_value(policy, Queue).
+
+queue_argument(Arg, Queue) ->
+    queue_argument(Arg, Queue, '').
+
+queue_argument(Arg, Queue, Default) ->
+    maps:get(Arg, proplists:get_value(arguments, Queue), Default).
 
 queue_dir_size(Queue) ->
   QueueDirName = queue_dir_name(Queue),
