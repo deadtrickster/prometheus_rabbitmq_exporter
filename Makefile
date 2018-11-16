@@ -24,15 +24,15 @@ include erlang.mk
 .PHONY: docker_build docker_push docker_latest docker_latest_pure
 
 docker_build:
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.7 .
+	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8 .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest .
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.7-pure -f Dockerfile.pure  .
+	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8-pure -f Dockerfile.pure  .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest-pure -f Dockerfile.pure  .
 
 docker_push:
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.7
+	docker push deadtrickster/rabbitmq_prometheus\:3.7.8
 	docker push deadtrickster/rabbitmq_prometheus\:latest
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.7-pure
+	docker push deadtrickster/rabbitmq_prometheus\:3.7.8-pure
 	docker push deadtrickster/rabbitmq_prometheus\:latest-pure
 
 docker_latest:
