@@ -21,22 +21,29 @@ ERLANG_MK_COMMIT = rabbitmq-tmp
 include rabbitmq-components.mk
 include erlang.mk
 
-.PHONY: docker_build docker_push docker_latest docker_latest_pure
+.PHONY: docker_build docker_push docker_latest docker_pure docker_alpine
 
 docker_build:
 	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8 .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest .
 	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8-pure -f Dockerfile.pure  .
 	docker build -t deadtrickster/rabbitmq_prometheus\:latest-pure -f Dockerfile.pure  .
+	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8-alpine -f Dockerfile.alpine  .
+	docker build -t deadtrickster/rabbitmq_prometheus\:latest-alpine -f Dockerfile.alpine  .
 
 docker_push:
 	docker push deadtrickster/rabbitmq_prometheus\:3.7.8
 	docker push deadtrickster/rabbitmq_prometheus\:latest
 	docker push deadtrickster/rabbitmq_prometheus\:3.7.8-pure
 	docker push deadtrickster/rabbitmq_prometheus\:latest-pure
+	docker push deadtrickster/rabbitmq_prometheus\:3.7.8-alpine
+	docker push deadtrickster/rabbitmq_prometheus\:latest-alpine
 
 docker_latest:
 	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest
 
 docker_pure:
 	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest-pure
+
+docker_alpine:
+	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest-alpine
