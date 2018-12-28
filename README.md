@@ -99,6 +99,9 @@ You can rebuild the plugin yourself very easily - `clone https://github.com/dead
 ### Latest Docker:
  `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus`
 
+Alpine-based image is also available:
+ `docker run -p 8080:15672 deadtrickster/rabbitmq_prometheus:latest-alpine`
+
 ## Configuration
 
 This exporter supports the following options via `rabbitmq_exporter` entry of `prometheus` app env:

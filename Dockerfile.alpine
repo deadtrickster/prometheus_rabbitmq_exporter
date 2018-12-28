@@ -1,0 +1,6 @@
+FROM rabbitmq:3.7.8-management-alpine
+
+# Copy the plugin and its dependencies
+COPY "plugins/*.ez" "/opt/rabbitmq/plugins/"
+RUN chmod a+r /opt/rabbitmq/plugins/prometheus*.ez /opt/rabbitmq/plugins/accept*.ez \
+    && rabbitmq-plugins enable --offline prometheus_rabbitmq_exporter
