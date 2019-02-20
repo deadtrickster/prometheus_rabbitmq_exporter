@@ -9,18 +9,15 @@ PROJECT_APP_EXTRA_KEYS = {maintainers, ["Ilya Khaprov"]}, \
 
 ACCEPT_VERSION = 0.3.4
 dep_accept = hex $(ACCEPT_VERSION)
-# dep_accept = git https://github.com/rabbitmq/accept rebar-archive
 
 PROMETHEUS_VERSION = 4.2.2
 dep_prometheus = hex $(PROMETHEUS_VERSION)
 
 PROMETHEUS_COWBOY_VERSION = 0.1.7
 dep_prometheus_cowboy = hex $(PROMETHEUS_COWBOY_VERSION)
-# dep_prometheus_cowboy = git https://github.com/rabbitmq/prometheus-cowboy rebar-archive
 
 PROMETHEUS_HTTPD_VERSION = 2.1.10
 dep_prometheus_httpd = hex $(PROMETHEUS_HTTPD_VERSION)
-# dep_prometheus_httpd = git https://github.com/rabbitmq/prometheus-httpd rebar-archive
 
 PROMETHEUS_PROCESS_COLLECTOR_VERSION = 1.4.0
 dep_prometheus_process_collector = hex $(PROMETHEUS_PROCESS_COLLECTOR_VERSION)
@@ -134,9 +131,6 @@ tmp/$(EZ).ez: up app tmp
 	rm -f $(EZ).ez && \
 	zip --move --recurse-paths --test $(EZ).ez $(EZ) && \
 	mv $(EZ).ez tmp/
-
-# $(EZ).ez: _build/default/lib app
-# 	$(REBAR) archive
 
 .PHONY: ezs
 ezs:: tmp/accept-$(ACCEPT_VERSION).ez
