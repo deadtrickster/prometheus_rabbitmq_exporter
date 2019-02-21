@@ -41,6 +41,11 @@ RABBITMQ_BRANCH ?= v3.7.x
 RABBITMQ_CURRENT_FETCH_URL ?= https://github.com/rabbitmq/
 
 REBAR := $(CURDIR)/rebar3
+REBAR_VERSION := 3.9.0
+$(REBAR):
+	@wget --output-document $(REBAR) https://github.com/erlang/rebar3/releases/download/$(REBAR_VERSION)/rebar3 && \
+	chmod +x $(REBAR) && \
+	$(REBAR) --version | grep $(REBAR_VERSION)
 
 include rabbitmq-components.mk
 include erlang.mk
@@ -100,27 +105,27 @@ $(REBAR_DEPS_DIR): up
 tmp:
 	@mkdir -p tmp
 
-tmp/accept-$(ACCEPT_VERSION).ez: $(REBAR_DEPS_DIR) tmp
+tmp/accept-$(ACCEPT_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/accept && \
 	$(REBAR) archive && \
 	mv accept-$(ACCEPT_VERSION).ez $(CURDIR)/tmp/
 
-tmp/prometheus-$(PROMETHEUS_VERSION).ez: $(REBAR_DEPS_DIR) tmp
+tmp/prometheus-$(PROMETHEUS_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/prometheus && \
 	$(REBAR) archive && \
 	mv prometheus-$(PROMETHEUS_VERSION).ez $(CURDIR)/tmp/
 
-tmp/prometheus_cowboy-$(PROMETHEUS_COWBOY_VERSION).ez: $(REBAR_DEPS_DIR) tmp
+tmp/prometheus_cowboy-$(PROMETHEUS_COWBOY_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/prometheus_cowboy && \
 	$(REBAR) archive && \
 	mv prometheus_cowboy-$(PROMETHEUS_COWBOY_VERSION).ez $(CURDIR)/tmp/
 
-tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez: $(REBAR_DEPS_DIR) tmp
+tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/prometheus_httpd && \
 	$(REBAR) archive && \
 	mv prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez $(CURDIR)/tmp/
 
-tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez: $(REBAR_DEPS_DIR) tmp
+tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/prometheus_process_collector && \
 	$(REBAR) archive && \
 	mv prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez $(CURDIR)/tmp

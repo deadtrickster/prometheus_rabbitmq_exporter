@@ -16,3 +16,4 @@ _build
 /rabbitmq_management_metrics.d
 erl_crash.dump
 *.ez
+rebar3
