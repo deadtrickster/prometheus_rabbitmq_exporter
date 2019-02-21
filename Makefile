@@ -1,7 +1,7 @@
 PROJECT = prometheus_rabbitmq_exporter
 PROJECT_DESCRIPTION = RabbitMQ Prometheus.io metrics exporter
 # PROJECT_VERSION gets set in rabbitmq-components.mk to RABBITMQ_VERSION
-RABBITMQ_VERSION = 3.7.$(shell date +'%Y%m%d')
+RABBITMQ_VERSION = 3.7.2.4
 EZ = $(PROJECT)-$(PROJECT_VERSION)
 PROJECT_APP_EXTRA_KEYS = {maintainers, ["Ilya Khaprov"]}, \
   {licenses, ["MIT"]}, \
