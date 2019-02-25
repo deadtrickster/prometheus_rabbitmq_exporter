@@ -1,7 +1,8 @@
 PROJECT = prometheus_rabbitmq_exporter
 PROJECT_DESCRIPTION = RabbitMQ Prometheus.io metrics exporter
+RABBITMQ_MINOR_VERSION = 3.7
 # PROJECT_VERSION gets set in rabbitmq-components.mk to RABBITMQ_VERSION
-RABBITMQ_VERSION = 3.7.2.4
+RABBITMQ_VERSION = $(RABBITMQ_MINOR_VERSION).2.4
 EZ = $(PROJECT)-$(PROJECT_VERSION)
 PROJECT_APP_EXTRA_KEYS = {maintainers, ["Ilya Khaprov"]}, \
   {licenses, ["MIT"]}, \
@@ -37,7 +38,7 @@ DEP_PLUGINS = rabbit_common/mk/rabbitmq-plugin.mk
 ERLANG_MK_REPO = https://github.com/rabbitmq/erlang.mk.git
 ERLANG_MK_COMMIT = rabbitmq-tmp
 
-RABBITMQ_BRANCH ?= v3.7.x
+RABBITMQ_BRANCH ?= v$(RABBITMQ_MINOR_VERSION).x
 RABBITMQ_CURRENT_FETCH_URL ?= https://github.com/rabbitmq/
 
 REBAR := $(CURDIR)/rebar3
@@ -50,32 +51,47 @@ $(REBAR):
 include rabbitmq-components.mk
 include erlang.mk
 
-.PHONY: up docker_build docker_push docker_latest docker_pure docker_alpine
+.PHONY: distclean
+distclean::
+	@rm -fr tmp
 
+DOCKER_IMAGE_VERSION = $(RABBITMQ_MINOR_VERSION)
+DOCKER_BASE_IMAGE = rabbitmq:$(DOCKER_IMAGE_VERSION)-management
+define BUILD_DOCKER_IMAGE
+docker build \
+  --pull \
+  --build-arg FROM_IMAGE=$(DOCKER_BASE_IMAGE) \
+  --build-arg PROMETHEUS_RABBITMQ_EXPORTER_VERSION=$(PROJECT_VERSION) \
+  --tag deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION) .
+endef
+.PHONY: docker_build
 docker_build:
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8 .
-	docker build -t deadtrickster/rabbitmq_prometheus\:latest .
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8-pure -f Dockerfile.pure  .
-	docker build -t deadtrickster/rabbitmq_prometheus\:latest-pure -f Dockerfile.pure  .
-	docker build -t deadtrickster/rabbitmq_prometheus\:3.7.8-alpine -f Dockerfile.alpine  .
-	docker build -t deadtrickster/rabbitmq_prometheus\:latest-alpine -f Dockerfile.alpine  .
+	@$(BUILD_DOCKER_IMAGE)
+.PHONY: docker_build_alpine
+docker_build_alpine: DOCKER_IMAGE_VERSION = 3.7-alpine
+docker_build_alpine: DOCKER_BASE_IMAGE = rabbitmq:3.7-management-alpine
+docker_build_alpine: docker_build
 
+define PUSH_DOCKER_IMAGE
+docker push deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
+endef
+.PHONY: docker_push
 docker_push:
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.8
-	docker push deadtrickster/rabbitmq_prometheus\:latest
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.8-pure
-	docker push deadtrickster/rabbitmq_prometheus\:latest-pure
-	docker push deadtrickster/rabbitmq_prometheus\:3.7.8-alpine
-	docker push deadtrickster/rabbitmq_prometheus\:latest-alpine
+	@$(PUSH_DOCKER_IMAGE)
+.PHONY: docker_push_alpine
+docker_push_alpine: DOCKER_IMAGE_VERSION = 3.7-alpine
+docker_push_alpine: docker_push
 
-docker_latest:
-	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest
-
-docker_pure:
-	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest-pure
-
-docker_alpine:
-	-docker run -p15672\:15672 deadtrickster/rabbitmq_prometheus\:latest-alpine
+define RUN_DOCKER_IMAGE
+docker run --interactive --tty --publish=15672:15672 \
+  deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
+endef
+.PHONY: docker_run
+docker_run:
+	@$(RUN_DOCKER_IMAGE)
+.PHONY: docker_run_alpine
+docker_run_alpine: DOCKER_IMAGE_VERSION = 3.7-alpine
+docker_run_alpine: docker_run
 
 .PHONY: up
 up: $(abspath .)+up $(DEPS:%=$(DEPS_DIR)/%+up) $(BUILD_DEPS:%=$(DEPS_DIR)/%+up)

@@ -1,0 +1,8 @@
+.erlang.mk
+.git
+_build
+deps
+ebin
+include
+priv
+src
