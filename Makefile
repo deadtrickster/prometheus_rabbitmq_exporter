@@ -116,7 +116,7 @@ up: $(abspath .)+up $(DEPS:%=$(DEPS_DIR)/%+up) $(BUILD_DEPS:%=$(DEPS_DIR)/%+up)
 REBAR_DEPS_DIR := _build/default/lib
 $(REBAR_DEPS_DIR): up
 	@mkdir -p _build/default && \
-	ln -shfv $(CURDIR)/deps $(REBAR_DEPS_DIR)
+	ln -sfnv $(CURDIR)/deps $(REBAR_DEPS_DIR)
 
 tmp:
 	@mkdir -p tmp
