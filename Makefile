@@ -8,7 +8,7 @@ PROJECT_APP_EXTRA_KEYS = {maintainers, ["Ilya Khaprov"]}, \
   {licenses, ["MIT"]}, \
   {links, [{"Github", "https://github.com/deadtrickster/prometheus_rabbitmq_exporter"}]}
 
-ACCEPT_VERSION = 0.3.4
+ACCEPT_VERSION = 0.3.5
 dep_accept = hex $(ACCEPT_VERSION)
 
 PROMETHEUS_VERSION = 4.2.2
@@ -20,7 +20,7 @@ dep_prometheus_cowboy = hex $(PROMETHEUS_COWBOY_VERSION)
 PROMETHEUS_HTTPD_VERSION = 2.1.10
 dep_prometheus_httpd = hex $(PROMETHEUS_HTTPD_VERSION)
 
-PROMETHEUS_PROCESS_COLLECTOR_VERSION = 1.4.0
+PROMETHEUS_PROCESS_COLLECTOR_VERSION = 1.4.3
 dep_prometheus_process_collector = hex $(PROMETHEUS_PROCESS_COLLECTOR_VERSION)
 
 DEPS = rabbit rabbitmq_management  \
