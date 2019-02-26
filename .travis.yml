@@ -1,0 +1,13 @@
+dist: xenial
+sudo: false
+language: elixir
+elixir:
+  - 1.7.2
+otp_release:
+  - 20.3
+install: 'true'
+services:
+  - docker
+otp_release:
+- 20.1
+script: "make test"

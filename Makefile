@@ -160,3 +160,19 @@ ezs:: tmp/prometheus_cowboy-$(PROMETHEUS_COWBOY_VERSION).ez
 ezs:: tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez
 ezs:: tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez
 ezs:: tmp/$(EZ).ez
+
+define RUN_DOCKER_IMAGE_TEST
+docker run -d --name rabbitmq_prometheus_test --tty --publish=15672:15672 \
+  deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
+endef
+define STOP_DOCKER_IMAGE_TEST
+docker stop rabbitmq_prometheus_test
+endef
+.PHONY: test
+test: ezs docker_build
+	@-$(STOP_DOCKER_IMAGE_TEST)
+	@-docker rm rabbitmq_prometheus_test
+	@$(RUN_DOCKER_IMAGE_TEST)
+	@sleep 10
+	curl -svLf -o /dev/null localhost:15672/api/metrics
+	@$(STOP_DOCKER_IMAGE_TEST)
