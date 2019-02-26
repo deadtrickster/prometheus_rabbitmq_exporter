@@ -1,4 +1,4 @@
-# RabbitMQ Prometheus.io exporter [![Build Status](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter) ![Docker Pulls](https://img.shields.io/docker/pulls/deadtrickster/rabbitmq_prometheus.svg)
+# RabbitMQ Prometheus.io exporter [![Build Status](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter) [![Docker Pulls](https://img.shields.io/docker/pulls/deadtrickster/rabbitmq_prometheus.svg)](https://hub.docker.com/r/deadtrickster/rabbitmq_prometheus/tags)
 
 Implemented as RabbitMQ Management Plugin plugin.
 Also exports Erlang VM and process metrics (~ 100 metrics in total).
