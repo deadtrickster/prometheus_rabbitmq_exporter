@@ -57,6 +57,7 @@ distclean::
 
 DOCKER_IMAGE_VERSION = $(RABBITMQ_MINOR_VERSION)
 DOCKER_BASE_IMAGE = rabbitmq:$(DOCKER_IMAGE_VERSION)-management
+
 define BUILD_DOCKER_IMAGE
 docker build \
   --pull \
@@ -64,6 +65,7 @@ docker build \
   --build-arg PROMETHEUS_RABBITMQ_EXPORTER_VERSION=$(PROJECT_VERSION) \
   --tag deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION) .
 endef
+
 .PHONY: docker_build
 docker_build:
 	@$(BUILD_DOCKER_IMAGE)
@@ -75,6 +77,7 @@ docker_build_alpine: docker_build
 define PUSH_DOCKER_IMAGE
 docker push deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
 endef
+
 .PHONY: docker_push
 docker_push:
 	@$(PUSH_DOCKER_IMAGE)
@@ -86,6 +89,7 @@ define RUN_DOCKER_IMAGE
 docker run --interactive --tty --publish=15672:15672 \
   deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
 endef
+
 .PHONY: docker_run
 docker_run:
 	@$(RUN_DOCKER_IMAGE)
@@ -161,18 +165,32 @@ ezs:: tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez
 ezs:: tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez
 ezs:: tmp/$(EZ).ez
 
-define RUN_DOCKER_IMAGE_TEST
-docker run -d --name rabbitmq_prometheus_test --tty --publish=15672:15672 \
+define RUN_DOCKER_TEST_IMAGE
+docker run \
+  --tty \
+  --detach \
+  --name test_prometheus_rabbitmq_exporter \
+  --publish 15672:15672 \
   deadtrickster/rabbitmq_prometheus:$(DOCKER_IMAGE_VERSION)
 endef
-define STOP_DOCKER_IMAGE_TEST
-docker stop rabbitmq_prometheus_test
+
+define ENSURE_RABBIT_IN_DOCKER_IS_RUNNING
+docker exec test_prometheus_rabbitmq_exporter \
+  bash -c "while sleep 1; do rabbitmq-diagnostics check_port_listener 15672 2>/dev/null && break; done"
 endef
+
+define CLEAN_DOCKER_TEST_IMAGE
+docker rm --force test_prometheus_rabbitmq_exporter
+endef
+
+define VERIFY_METRICS_API
+curl --silent --verbose --fail localhost:15672/api/metrics
+endef
+
 .PHONY: test
 test: ezs docker_build
-	@-$(STOP_DOCKER_IMAGE_TEST)
-	@-docker rm rabbitmq_prometheus_test
-	@$(RUN_DOCKER_IMAGE_TEST)
-	@sleep 10
-	curl -svLf -o /dev/null localhost:15672/api/metrics
-	@$(STOP_DOCKER_IMAGE_TEST)
+	@$(CLEAN_DOCKER_TEST_IMAGE) ; \
+	$(RUN_DOCKER_TEST_IMAGE) && \
+	$(ENSURE_RABBIT_IN_DOCKER_IS_RUNNING) && \
+	$(VERIFY_METRICS_API) && \
+	$(CLEAN_DOCKER_TEST_IMAGE)
