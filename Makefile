@@ -184,7 +184,7 @@ docker rm --force test_prometheus_rabbitmq_exporter
 endef
 
 define VERIFY_METRICS_API
-curl --silent --verbose --fail --fail-early localhost:15672/api/metrics
+curl --silent --verbose --fail localhost:15672/api/metrics
 endef
 
 .PHONY: test
