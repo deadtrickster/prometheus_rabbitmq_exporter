@@ -20,14 +20,22 @@ dep_prometheus_cowboy = hex $(PROMETHEUS_COWBOY_VERSION)
 PROMETHEUS_HTTPD_VERSION = 2.1.10
 dep_prometheus_httpd = hex $(PROMETHEUS_HTTPD_VERSION)
 
+# prometheus_process_collector will fail to build in otp-*-build-context, skipping
+ifneq ($(DOCKER_BUILD_CONTEXT),1)
 PROMETHEUS_PROCESS_COLLECTOR_VERSION = 1.4.3
 dep_prometheus_process_collector = hex $(PROMETHEUS_PROCESS_COLLECTOR_VERSION)
+endif
 
 DEPS = rabbit rabbitmq_management  \
        prometheus prometheus_cowboy prometheus_httpd
 
 # We do not want these deps defined as applications in app
+# prometheus_process_collector will fail to build in otp-*-build-context, skipping
+ifneq ($(DOCKER_BUILD_CONTEXT),1)
 BUILD_DEPS = rabbit_common rabbitmq_management_agent accept prometheus_process_collector
+else
+BUILD_DEPS = rabbit_common rabbitmq_management_agent accept
+endif
 
 DEP_EARLY_PLUGINS = rabbit_common/mk/rabbitmq-early-plugin.mk
 DEP_PLUGINS = rabbit_common/mk/rabbitmq-plugin.mk
@@ -145,10 +153,13 @@ tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) 
 	$(REBAR) archive && \
 	mv prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez $(CURDIR)/tmp/
 
+# prometheus_process_collector will fail to build in otp-*-build-context, skipping
+ifneq ($(DOCKER_BUILD_CONTEXT),1)
 tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez: $(REBAR) $(REBAR_DEPS_DIR) tmp
 	@cd $(REBAR_DEPS_DIR)/prometheus_process_collector && \
 	$(REBAR) archive && \
 	mv prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez $(CURDIR)/tmp
+endif
 
 tmp/$(EZ).ez: up app tmp
 	@rm -fr $(EZ) && mkdir $(EZ) && \
@@ -162,7 +173,10 @@ ezs:: tmp/accept-$(ACCEPT_VERSION).ez
 ezs:: tmp/prometheus-$(PROMETHEUS_VERSION).ez
 ezs:: tmp/prometheus_cowboy-$(PROMETHEUS_COWBOY_VERSION).ez
 ezs:: tmp/prometheus_httpd-$(PROMETHEUS_HTTPD_VERSION).ez
+# prometheus_process_collector will fail to build in otp-*-build-context, skipping
+ifneq ($(DOCKER_BUILD_CONTEXT),1)
 ezs:: tmp/prometheus_process_collector-$(PROMETHEUS_PROCESS_COLLECTOR_VERSION).ez
+endif
 ezs:: tmp/$(EZ).ez
 
 define RUN_DOCKER_TEST_IMAGE
@@ -194,3 +208,36 @@ test: ezs docker_build
 	$(ENSURE_RABBIT_IN_DOCKER_IS_RUNNING) && \
 	$(VERIFY_METRICS_API) && \
 	$(CLEAN_DOCKER_TEST_IMAGE)
+
+# This plugin is currently expected to work with RabbitMQ v3.7.9 and above:
+# https://github.com/deadtrickster/prometheus_rabbitmq_exporter#versioning
+#
+# The OTP version that ships in rabbitmq:3.7.9 Docker image is v21.2.5:
+# docker run -it --rm rabbitmq:3.7.9 -- cat /usr/local/lib/erlang/releases/21/OTP_VERSION
+# 21.2.5
+#
+# We are creating an Erlang/OTP build context which has the same version as RabbitMQ v3.7.9 Docker image
+# The goal is to produce ezs that are compatible with RabbitMQ v3.7.9 Docker image
+MIN_SUPPORTED_OTP_VERSION := 21.2.5
+.PHONY: otp-$(MIN_SUPPORTED_OTP_VERSION)-build-context
+otp-$(MIN_SUPPORTED_OTP_VERSION)-build-context:
+	@docker run --tty --interactive --rm --name build_prometheus_rabbitmq_export \
+	  --env LANG=C.UTF-8 \
+	  --env LANGUAGE=C.UTF-8 \
+	  --env LC_ALL=C.UTF-8 \
+	  --env DOCKER_BUILD_CONTEXT=1 \
+	  --volume $(CURDIR):/prometheus_rabbitmq_exporter \
+	  --workdir /prometheus_rabbitmq_exporter \
+	  erlang:$(MIN_SUPPORTED_OTP_VERSION) bash
+# make /usr/local/bin/elixir
+# apt update && apt install zip
+# make ezs
+
+tmp/elixir: tmp
+	@cd tmp && \
+	cd elixir || git clone https://github.com/elixir-lang/elixir.git; \
+	git checkout v1.8
+
+/usr/local/bin/elixir: tmp/elixir
+	@cd tmp/elixir && \
+	make clean install
