@@ -56,7 +56,7 @@ distclean::
 	@rm -fr tmp
 
 DOCKER_IMAGE_VERSION = $(RABBITMQ_MINOR_VERSION)
-DOCKER_BASE_IMAGE = rabbitmq:$(DOCKER_IMAGE_VERSION)-management
+DOCKER_BASE_IMAGE ?= rabbitmq:$(DOCKER_IMAGE_VERSION)-management
 
 define BUILD_DOCKER_IMAGE
 docker build \
