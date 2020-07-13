@@ -53,6 +53,7 @@
                          running -> 0;
                          undefined -> undefined;
                          down -> undefined;
+                         flow -> undefined;
                          {syncing, MsgCount} -> MsgCount
                        end
                    end}
