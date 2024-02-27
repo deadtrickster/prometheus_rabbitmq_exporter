@@ -1,5 +1,16 @@
 # RabbitMQ Prometheus.io exporter [![Build Status](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter.svg?branch=master)](https://travis-ci.org/deadtrickster/prometheus_rabbitmq_exporter) [![Docker Pulls](https://img.shields.io/docker/pulls/deadtrickster/rabbitmq_prometheus.svg)](https://hub.docker.com/r/deadtrickster/rabbitmq_prometheus/tags)
 
+## STOP! This is abandonware!
+
+[Modern RabbitMQ release series](https://www.rabbitmq.com/docs/versions) ship with a [built-in Prometheus plugin](https://www.rabbitmq.com/docs/prometheus) and a set
+of Grafana dashboards.
+
+This plugin is obsolete and really should not be used. It will not be compatible with the latest versions of RabbitMQ,
+you will not get any support for the RabbitMQ Core team, and there are no reasons to choose this plugin
+over the built-in one.
+
+## What does this plugin do?
+
 Implemented as RabbitMQ Management Plugin plugin.
 Also exports Erlang VM and process metrics (~ 100 metrics in total).
 
